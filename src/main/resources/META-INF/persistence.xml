@@ -8,8 +8,9 @@
     <persistence-unit name="SparkyTriviaPU" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <!-- Solo la entidad que existe -->
+        <!-- Entidades -->
         <class>org.example.sparkytrivia.model.Usuario</class>
+        <class>org.example.sparkytrivia.model.Trivia</class> <!-- ← AGREGAR ESTA LÍNEA -->
 
         <!-- Excluir escaneo automático -->
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
