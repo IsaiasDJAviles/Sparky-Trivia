@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@WebServlet(name = "ListarTriviasServlet", urlPatterns = {"/api/trivias"})
+@WebServlet(name = "ListarTriviasServlet", urlPatterns = {"/api/trivias/listar"})
 public class ListarTriviasServlet extends HttpServlet {
 
     // Servicio para lógica de negocio
