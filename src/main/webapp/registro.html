@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Sparky Trivia</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .register-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .register-card { max-width: 550px; width: 100%; animation: fadeInDown 0.6s ease; }
+        .name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* SOLUCIÓN: Input con icono */
+        .form-group { position: relative; margin-bottom: 25px; }
+        .form-group .form-input { width: 100%; padding: 15px 45px 15px 50px; z-index: 1; position: relative; }
+        .form-group .icon-decorator { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--color-gris); font-size: 1.1rem; pointer-events: none; z-index: 2; }
+        .form-group .form-input:focus + .icon-decorator { color: var(--color-azul-claro); }
+        .form-group .check-success { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--color-verde); font-size: 1.2rem; opacity: 0; pointer-events: none; z-index: 2; }
+        .form-group .check-success.show { opacity: 1; }
+
+        .password-strength { margin-top: 8px; height: 4px; background: #e9ecef; border-radius: 10px; display: none; }
+        .password-strength-bar { height: 100%; width: 0%; transition: all 0.3s; border-radius: 10px; }
+        .password-strength-bar.weak { width: 33%; background: var(--color-rojo); }
+        .password-strength-bar.medium { width: 66%; background: var(--color-amarillo); }
+        .password-strength-bar.strong { width: 100%; background: var(--color-verde); }
+        .password-strength-text { font-size: 0.85rem; margin-top: 5px; font-weight: 600; display: none; }
+        .password-strength-text.weak { color: var(--color-rojo); }
+        .password-strength-text.medium { color: var(--color-amarillo); }
+        .password-strength-text.strong { color: var(--color-verde); }
+        .password-requirements { font-size: 0.85rem; color: var(--color-gris); margin-top: 8px; padding-left: 20px; }
+        .password-requirements li { list-style: none; margin: 5px 0; position: relative; }
+        .password-requirements li::before { content: '○'; position: absolute; left: -15px; }
+        .password-requirements li.met { color: var(--color-verde); }
+        .password-requirements li.met::before { content: '✓'; }
+        .login-section { text-align: center; margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .login-section a { color: var(--color-azul-claro); font-weight: 600; text-decoration: none; }
+        @media (max-width: 576px) { .name-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<header class="header">
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <img src="images/sparky_logo.png" alt="Sparky">
+            <h1>Sparky Trivia</h1>
+        </div>
+    </div>
+</header>
+
+<div class="register-container">
+    <div class="register-card card card-tilt" data-aos="fade-up">
+        <div class="sparky-container">
+            <img src="images/sparky_registro.png?v=3" alt="Sparky" id="sparky">
+        </div>
+
+        <h2 class="card-title text-gradient">Crear Cuenta</h2>
+        <div id="alertContainer"></div>
+
+        <form id="registerForm">
+            <div class="name-grid">
+                <div class="form-group">
+                    <label for="firstName" class="form-label"><i class="bi bi-person-fill"></i> Nombre</label>
+                    <input type="text" class="form-input" id="firstName" placeholder="Tu nombre" required minlength="2">
+                    <i class="bi bi-person icon-decorator"></i>
+                    <i class="bi bi-check-circle-fill check-success" id="firstNameCheck"></i>
+                    <span class="error-message d-none" id="firstNameError"></span>
+                </div>
+                <div class="form-group">
+                    <label for="lastName" class="form-label"><i class="bi bi-person-fill"></i> Apellido</label>
+                    <input type="text" class="form-input" id="lastName" placeholder="Tu apellido" required minlength="2">
+                    <i class="bi bi-person icon-decorator"></i>
+                    <i class="bi bi-check-circle-fill check-success" id="lastNameCheck"></i>
+                    <span class="error-message d-none" id="lastNameError"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="nickName" class="form-label"><i class="bi bi-at"></i> Nickname</label>
+                <input type="text" class="form-input" id="nickName" placeholder="jugador123" required minlength="3">
+                <i class="bi bi-at icon-decorator"></i>
+                <i class="bi bi-check-circle-fill check-success" id="nickNameCheck"></i>
+                <span class="error-message d-none" id="nickNameError"></span>
+                <small style="color: var(--color-gris); font-size: 0.85rem;">Solo letras, números, guiones</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label"><i class="bi bi-envelope-fill"></i> Email</label>
+                <input type="email" class="form-input" id="email" placeholder="tucorreo@ejemplo.com" required>
+                <i class="bi bi-envelope icon-decorator"></i>
+                <i class="bi bi-check-circle-fill check-success" id="emailCheck"></i>
+                <span class="error-message d-none" id="emailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label"><i class="bi bi-lock-fill"></i> Contraseña</label>
+                <input type="password" class="form-input" id="password" placeholder="Crea tu contraseña" required minlength="6">
+                <i class="bi bi-lock icon-decorator"></i>
+                <div class="password-strength" id="passwordStrength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+                <div class="password-strength-text" id="passwordStrengthText"></div>
+                <ul class="password-requirements">
+                    <li id="req-length">Mínimo 6 caracteres</li>
+                    <li id="req-lowercase">Al menos una minúscula</li>
+                    <li id="req-uppercase">Al menos una mayúscula</li>
+                    <li id="req-number">Al menos un número</li>
+                </ul>
+                <span class="error-message d-none" id="passwordError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label"><i class="bi bi-lock-fill"></i> Confirmar</label>
+                <input type="password" class="form-input" id="confirmPassword" placeholder="Repite tu contraseña" required>
+                <i class="bi bi-lock icon-decorator"></i>
+                <i class="bi bi-check-circle-fill check-success" id="confirmPasswordCheck"></i>
+                <span class="error-message d-none" id="confirmPasswordError"></span>
+            </div>
+
+            <button type="submit" class="btn btn-verde btn-ripple" id="btnRegister">
+                <i class="bi bi-person-plus-fill me-2"></i>Crear Cuenta
+            </button>
+        </form>
+
+        <div class="login-section">
+            <p>¿Ya tienes cuenta? <a href="login.html">¡Inicia sesión!</a></p>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 Sparky Trivia | Renata Castro & Isaías Avilés</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.0/dist/vanilla-tilt.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        verificarSesionExistente('dashboard.html');
+
+        const form = document.getElementById('registerForm');
+        const inputs = {
+            firstName: document.getElementById('firstName'),
+            lastName: document.getElementById('lastName'),
+            nickName: document.getElementById('nickName'),
+            email: document.getElementById('email'),
+            password: document.getElementById('password'),
+            confirmPassword: document.getElementById('confirmPassword')
+        };
+        const btn = document.getElementById('btnRegister');
+        const sparky = document.getElementById('sparky');
+
+        inputs.firstName.addEventListener('blur', function() {
+            if (this.value.trim().length >= 2) {
+                this.classList.remove('error');
+                ocultarError(document.getElementById('firstNameError'));
+                document.getElementById('firstNameCheck').classList.add('show');
+            }
+        });
+
+        inputs.lastName.addEventListener('blur', function() {
+            if (this.value.trim().length >= 2) {
+                this.classList.remove('error');
+                ocultarError(document.getElementById('lastNameError'));
+                document.getElementById('lastNameCheck').classList.add('show');
+            }
+        });
+
+        inputs.nickName.addEventListener('blur', function() {
+            if (validarNickname(this.value.trim())) {
+                this.classList.remove('error');
+                ocultarError(document.getElementById('nickNameError'));
+                document.getElementById('nickNameCheck').classList.add('show');
+            } else if (this.value.trim()) {
+                mostrarError(document.getElementById('nickNameError'), 'Nickname inválido');
+                this.classList.add('error');
+            }
+        });
+
+        inputs.email.addEventListener('blur', function() {
+            if (validarEmail(this.value.trim())) {
+                this.classList.remove('error');
+                ocultarError(document.getElementById('emailError'));
+                document.getElementById('emailCheck').classList.add('show');
+            } else if (this.value.trim()) {
+                mostrarError(document.getElementById('emailError'), 'Email inválido');
+                this.classList.add('error');
+            }
+        });
+
+        inputs.password.addEventListener('input', function() {
+            const pwd = this.value;
+            const bar = document.getElementById('passwordStrengthBar');
+            const text = document.getElementById('passwordStrengthText');
+            const container = document.getElementById('passwordStrength');
+
+            if (!pwd) {
+                container.style.display = 'none';
+                text.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            text.style.display = 'block';
+
+            const result = validarFortalezaPassword(pwd);
+            bar.className = 'password-strength-bar';
+
+            if (result.score <= 40) {
+                bar.classList.add('weak');
+                text.className = 'password-strength-text weak';
+                text.textContent = '🔴 Débil';
+            } else if (result.score <= 70) {
+                bar.classList.add('medium');
+                text.className = 'password-strength-text medium';
+                text.textContent = '🟡 Media';
+            } else {
+                bar.classList.add('strong');
+                text.className = 'password-strength-text strong';
+                text.textContent = '🟢 Fuerte';
+            }
+
+            document.getElementById('req-length').className = pwd.length >= 6 ? 'met' : '';
+            document.getElementById('req-lowercase').className = /[a-z]/.test(pwd) ? 'met' : '';
+            document.getElementById('req-uppercase').className = /[A-Z]/.test(pwd) ? 'met' : '';
+            document.getElementById('req-number').className = /[0-9]/.test(pwd) ? 'met' : '';
+        });
+
+        inputs.confirmPassword.addEventListener('input', function() {
+            if (this.value && this.value === inputs.password.value) {
+                this.classList.remove('error');
+                ocultarError(document.getElementById('confirmPasswordError'));
+                document.getElementById('confirmPasswordCheck').classList.add('show');
+            } else if (this.value) {
+                mostrarError(document.getElementById('confirmPasswordError'), 'No coinciden');
+                this.classList.add('error');
+            }
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const data = {
+                firstName: inputs.firstName.value.trim(),
+                lastName: inputs.lastName.value.trim(),
+                nickName: inputs.nickName.value.trim(),
+                email: inputs.email.value.trim(),
+                password: inputs.password.value
+            };
+
+            let errors = false;
+            if (data.firstName.length < 2 || data.lastName.length < 2 || !validarNickname(data.nickName) || !validarEmail(data.email) || data.password.length < 6 || data.password !== inputs.confirmPassword.value) {
+                SparkyAnimations.sparkySad(sparky);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Creando...';
+
+            try {
+                const response = await postRequest('/SparkyTrivia/api/auth/registro', data);
+
+                if (response.success) {
+                    mostrarAlerta('¡Cuenta creada! 🎉', 'success');
+                    SparkyAnimations.sparkyHappy(sparky);
+                    SparkyAnimations.confettiExplosion();
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                } else {
+                    mostrarAlerta(response.message || 'Error', 'error');
+                    SparkyAnimations.sparkySad(sparky);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-person-plus-fill me-2"></i>Crear Cuenta';
+                }
+            } catch (error) {
+                mostrarAlerta('Error de conexión', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-person-plus-fill me-2"></i>Crear Cuenta';
+            }
+        });
+    });
+</script>
+</body>
+</html>
