@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Página No Encontrada | Sparky Trivia</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .error-card {
+            max-width: 600px;
+            width: 100%;
+            animation: fadeInDown 0.6s ease;
+            text-align: center;
+        }
+
+        .error-code {
+            font-size: 8rem;
+            font-weight: 800;
+            background: var(--gradient-danger);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .error-message {
+            font-size: 1.5rem;
+            color: var(--color-negro);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .error-description {
+            color: var(--color-gris);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .sparky-sad {
+            max-width: 280px;
+            height: auto;
+            margin: 30px auto;
+            animation: shake 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-group .btn {
+            width: auto;
+            min-width: 200px;
+        }
+
+        .helpful-links {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .helpful-links h4 {
+            font-size: 1rem;
+            color: var(--color-gris);
+            margin-bottom: 15px;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .link-item {
+            padding: 10px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            color: var(--color-azul-claro);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .link-item:hover {
+            background: rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<header class="header">
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="images/sparky_logo.png" alt="Sparky">
+            <h1>Sparky Trivia</h1>
+        </div>
+    </div>
+</header>
+
+<div class="error-container">
+    <div class="error-card card card-tilt" data-aos="fade-up">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-message">¡Oops! Página no encontrada</h2>
+        <p class="error-description">
+            Parece que esta página se perdió en el cerebro de Sparky... 🧠
+        </p>
+
+        <img src="images/sparky_error404.png?v=3" alt="Sparky Error 404" class="sparky-sad" id="sparky">
+
+        <p class="text-muted mb-4">
+            La página que buscas no existe o fue movida a otra ubicación.
+        </p>
+
+        <div class="btn-group">
+            <button class="btn btn-azul btn-ripple" onclick="window.history.back()">
+                <i class="bi bi-arrow-left me-2"></i>Volver Atrás
+            </button>
+            <button class="btn btn-verde btn-ripple" onclick="window.location.href='dashboard.html'">
+                <i class="bi bi-house-fill me-2"></i>Ir al Dashboard
+            </button>
+        </div>
+
+        <div class="helpful-links">
+            <h4>O tal vez estabas buscando:</h4>
+            <div class="links-grid">
+                <a href="dashboard.html" class="link-item">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a href="crear-trivia.html" class="link-item">
+                    <i class="bi bi-plus-circle"></i> Crear Trivia
+                </a>
+                <a href="mis-trivias.html" class="link-item">
+                    <i class="bi bi-collection"></i> Mis Trivias
+                </a>
+                <a href="explorar-trivias.html" class="link-item">
+                    <i class="bi bi-search"></i> Explorar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 Sparky Trivia | Renata Castro & Isaías Avilés</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.0/dist/vanilla-tilt.min.js"></script>
+<script src="js/animations.js"></script>
+
+<script>
+    // Animación de Sparky triste
+    document.addEventListener('DOMContentLoaded', function() {
+        const sparky = document.getElementById('sparky');
+        if (typeof SparkyAnimations !== 'undefined') {
+            SparkyAnimations.sparkySad(sparky);
+        }
+    });
+</script>
+</body>
+</html>
