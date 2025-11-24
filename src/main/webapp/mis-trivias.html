@@ -187,11 +187,17 @@
             color: var(--color-gris);
         }
 
+        /* ✨ NUEVO: Botones de acción actualizados - 3 botones */
         .trivia-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 20px;
+        }
+
+        /* ✨ NUEVO: Botón de preguntas ocupa toda la fila */
+        .btn-preguntas-full {
+            grid-column: 1 / -1;
         }
 
         .btn-action {
@@ -208,6 +214,12 @@
             gap: 8px;
         }
 
+        /* ✨ NUEVO: Estilo para botón de preguntas */
+        .btn-preguntas {
+            background: var(--gradient-warning);
+            color: var(--color-negro);
+        }
+
         .btn-edit {
             background: var(--gradient-primary);
             color: white;
@@ -221,6 +233,20 @@
         .btn-action:hover {
             transform: translateY(-3px);
             box-shadow: var(--sombra-media);
+        }
+
+        /* ✨ NUEVO: Badge de preguntas vacías */
+        .badge-sin-preguntas {
+            background: rgba(245, 54, 92, 0.15);
+            color: #f5365c;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
         }
 
         .empty-state {
@@ -316,6 +342,10 @@
 
             .trivia-actions {
                 grid-template-columns: 1fr;
+            }
+
+            .btn-preguntas-full {
+                grid-column: 1;
             }
 
             .fab-button {
@@ -477,7 +507,7 @@
         }
     }
 
-    // Función para crear una card de trivia
+    // ✨ ACTUALIZADO: Función para crear una card de trivia con botón de preguntas
     function crearCardTrivia(trivia, index) {
         const card = document.createElement('div');
         card.className = 'trivia-card';
@@ -491,9 +521,17 @@
             'archivado': 'Archivado'
         }[trivia.status] || 'Borrador';
 
+        // ✨ Badge si no tiene preguntas
+        const sinPreguntasBadge = trivia.preguntasTotales === 0
+            ? '<span class="badge-sin-preguntas"><i class="bi bi-exclamation-circle-fill"></i> Sin preguntas</span>'
+            : '';
+
         card.innerHTML = `
             <div class="trivia-header">
-                <h3 class="trivia-title">${escaparHTML(trivia.titulo)}</h3>
+                <div>
+                    <h3 class="trivia-title">${escaparHTML(trivia.titulo)}</h3>
+                    ${sinPreguntasBadge}
+                </div>
                 <span class="trivia-status ${statusClass}">${statusText}</span>
             </div>
 
@@ -532,9 +570,16 @@
             </div>
 
             <div class="trivia-actions">
-                <button class="btn-action btn-edit" onclick="editarTrivia(${trivia.triviaId})">
-                    <i class="bi bi-pencil-fill"></i> Editar
+                <!-- ✨ NUEVO: Botón de Editar Preguntas (ocupa toda la fila) -->
+                <button class="btn-action btn-preguntas btn-preguntas-full" onclick="editarPreguntas(${trivia.triviaId})">
+                    <i class="bi bi-list-check"></i>
+                    ${trivia.preguntasTotales === 0 ? 'Agregar Preguntas' : 'Editar Preguntas'}
                 </button>
+
+                <button class="btn-action btn-edit" onclick="editarTrivia(${trivia.triviaId})">
+                    <i class="bi bi-pencil-fill"></i> Editar Info
+                </button>
+
                 <button class="btn-action btn-delete" onclick="confirmarEliminar(${trivia.triviaId}, '${escaparHTML(trivia.titulo)}')">
                     <i class="bi bi-trash-fill"></i> Eliminar
                 </button>
@@ -542,6 +587,11 @@
         `;
 
         return card;
+    }
+
+    // ✨ NUEVA: Función para ir al editor de preguntas
+    function editarPreguntas(triviaId) {
+        window.location.href = `editor-preguntas.html?triviaId=${triviaId}`;
     }
 
     // Función para editar trivia

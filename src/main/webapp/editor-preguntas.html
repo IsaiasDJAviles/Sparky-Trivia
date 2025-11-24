@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Preguntas - Sparky Trivia</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- AOS Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* Estilos específicos para el editor de preguntas */
+        .pregunta-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: move;
+        }
+
+        .pregunta-card:hover {
+            border-color: var(--color-azul-claro);
+            box-shadow: var(--sombra-azul);
+            transform: translateY(-3px);
+        }
+
+        .pregunta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .pregunta-numero {
+            background: var(--gradient-primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .pregunta-acciones {
+            display: flex;
+            gap: 10px;
+        }
+
+        .opcion-respuesta {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .opcion-respuesta.correcta {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid #28a745;
+        }
+
+        .opcion-letra {
+            background: var(--color-azul-claro);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .opcion-respuesta.correcta .opcion-letra {
+            background: #28a745;
+        }
+
+        .badge-info {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .btn-agregar-grande {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.1rem;
+            border: 3px dashed var(--color-azul-claro);
+            background: rgba(94, 114, 228, 0.05);
+            color: var(--color-azul-claro);
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+
+        .btn-agregar-grande:hover {
+            background: rgba(94, 114, 228, 0.15);
+            transform: scale(1.02);
+        }
+
+        .trivia-info {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .modal-opciones {
+            margin-top: 20px;
+        }
+
+        .opcion-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .opcion-input-group input[type="text"] {
+            flex: 1;
+        }
+
+        .opcion-input-group .form-check {
+            width: 120px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-remover-opcion {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-gris);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="images/sparky_logo.png" alt="Sparky">
+            <h1>Sparky Trivia</h1>
+        </div>
+        <div>
+            <button class="btn btn-rojo" onclick="cerrarSesion()">
+                <i class="bi bi-box-arrow-right me-2"></i>Salir
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+    <!-- Información de la Trivia -->
+    <div class="trivia-info" data-aos="fade-down">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 id="triviaTitulo">Cargando...</h2>
+                <p class="mb-0" id="triviaDescripcion"></p>
+                <div class="mt-2">
+                    <span class="badge bg-light text-dark me-2" id="triviaCategoria"></span>
+                    <span class="badge bg-light text-dark" id="triviaDificultad"></span>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-amarillo" onclick="volverATrivias()">
+                    <i class="bi bi-arrow-left me-2"></i>Volver a Mis Trivias
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alertas -->
+    <div id="alertContainer"></div>
+
+    <!-- Botón Agregar Pregunta -->
+    <button class="btn-agregar-grande mb-4" data-aos="fade-up" onclick="abrirModalNuevaPregunta()">
+        <i class="bi bi-plus-circle me-2" style="font-size: 1.5rem;"></i>
+        <strong>Agregar Nueva Pregunta</strong>
+    </button>
+
+    <!-- Lista de Preguntas -->
+    <div id="preguntasContainer">
+        <!-- Las preguntas se cargarán aquí dinámicamente -->
+    </div>
+
+    <!-- Estado Vacío -->
+    <div id="emptyState" class="empty-state d-none" data-aos="fade-up">
+        <i class="bi bi-question-circle"></i>
+        <h3>No hay preguntas aún</h3>
+        <p>Comienza agregando la primera pregunta a esta trivia</p>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>&copy; 2025 Sparky Trivia | Renata Castro & Isaías Avilés</p>
+</footer>
+
+<!-- Modal para Crear/Editar Pregunta -->
+<div class="modal fade" id="modalPregunta" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPreguntaTitulo">Nueva Pregunta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formPregunta">
+                    <!-- Contenido de la Pregunta -->
+                    <div class="form-group">
+                        <label for="contenidoPregunta" class="form-label">
+                            <i class="bi bi-question-circle-fill me-2"></i>Pregunta *
+                        </label>
+                        <textarea
+                                class="form-input"
+                                id="contenidoPregunta"
+                                rows="3"
+                                placeholder="¿Cuál es la capital de Francia?"
+                                required
+                        ></textarea>
+                    </div>
+
+                    <!-- Fila 1: Tipo y Puntos -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tipoPregunta" class="form-label">Tipo de Pregunta</label>
+                                <select class="form-input" id="tipoPregunta">
+                                    <option value="opcion_multiple">Opción Múltiple</option>
+                                    <option value="verdadero_falso">Verdadero/Falso</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="puntosPregunta" class="form-label">Puntos</label>
+                                <input
+                                        type="number"
+                                        class="form-input"
+                                        id="puntosPregunta"
+                                        value="100"
+                                        min="10"
+                                        max="1000"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Tiempo y Dificultad -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tiempoPregunta" class="form-label">Tiempo Límite (seg)</label>
+                                <input
+                                        type="number"
+                                        class="form-input"
+                                        id="tiempoPregunta"
+                                        value="30"
+                                        min="5"
+                                        max="120"
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="dificultadPregunta" class="form-label">Dificultad</label>
+                                <select class="form-input" id="dificultadPregunta">
+                                    <option value="facil">Fácil</option>
+                                    <option value="medio" selected>Medio</option>
+                                    <option value="dificil">Difícil</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Imagen (opcional) -->
+                    <div class="form-group">
+                        <label for="imagenPregunta" class="form-label">
+                            <i class="bi bi-image me-2"></i>URL de Imagen (opcional)
+                        </label>
+                        <input
+                                type="url"
+                                class="form-input"
+                                id="imagenPregunta"
+                                placeholder="https://ejemplo.com/imagen.jpg"
+                        >
+                    </div>
+
+                    <!-- Explicación (opcional) -->
+                    <div class="form-group">
+                        <label for="explicacionPregunta" class="form-label">
+                            <i class="bi bi-lightbulb me-2"></i>Explicación (opcional)
+                        </label>
+                        <textarea
+                                class="form-input"
+                                id="explicacionPregunta"
+                                rows="2"
+                                placeholder="Explicación educativa que se mostrará después de responder"
+                        ></textarea>
+                    </div>
+
+                    <!-- Opciones de Respuesta -->
+                    <div class="modal-opciones">
+                        <label class="form-label">
+                            <i class="bi bi-list-check me-2"></i>Opciones de Respuesta *
+                            <small class="text-muted">(Mínimo 2, máximo 6)</small>
+                        </label>
+                        <div id="opcionesContainer">
+                            <!-- Las opciones se agregarán aquí dinámicamente -->
+                        </div>
+                        <button
+                                type="button"
+                                class="btn btn-outline-primary mt-2"
+                                onclick="agregarOpcion()"
+                                id="btnAgregarOpcion"
+                        >
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Opción
+                        </button>
+                    </div>
+
+                    <input type="hidden" id="preguntaIdEdit">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-azul" onclick="guardarPregunta()" id="btnGuardarPregunta">
+                    <i class="bi bi-check-circle me-2"></i>Guardar Pregunta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    // Variables globales
+    let triviaId = null;
+    let triviaActual = null;
+    let preguntas = [];
+    let modoEdicion = false;
+    let contadorOpciones = 0;
+    let modalPregunta = null;
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        // Proteger página
+        protegerPagina();
+
+        // Inicializar modal
+        modalPregunta = new bootstrap.Modal(document.getElementById('modalPregunta'));
+
+        // Obtener triviaId de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        triviaId = urlParams.get('triviaId');
+
+        if (!triviaId) {
+            mostrarAlerta('No se especificó la trivia', 'error');
+            setTimeout(() => window.location.href = 'mis-trivias.html', 2000);
+            return;
+        }
+
+        // Cargar datos
+        cargarTrivia();
+        cargarPreguntas();
+    });
+
+    // ========== CARGAR DATOS ==========
+
+    async function cargarTrivia() {
+        try {
+            const response = await getRequest(`/SparkyTrivia/api/trivias/${triviaId}`);
+
+            if (response.success) {
+                triviaActual = response.trivia;
+
+                document.getElementById('triviaTitulo').textContent = triviaActual.titulo;
+                document.getElementById('triviaDescripcion').textContent = triviaActual.descripcion || 'Sin descripción';
+                document.getElementById('triviaCategoria').textContent = triviaActual.categoria;
+                document.getElementById('triviaDificultad').textContent = triviaActual.dificultad;
+            } else {
+                mostrarAlerta('Error al cargar trivia: ' + response.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión', 'error');
+        }
+    }
+
+    async function cargarPreguntas() {
+        try {
+            const response = await getRequest(`/SparkyTrivia/api/trivias/preguntas?triviaId=${triviaId}`);
+
+            if (response.success) {
+                preguntas = response.preguntas || [];
+                renderizarPreguntas();
+            } else {
+                mostrarAlerta('Error al cargar preguntas: ' + response.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión', 'error');
+        }
+    }
+
+    // ========== RENDERIZAR PREGUNTAS ==========
+
+    function renderizarPreguntas() {
+        const container = document.getElementById('preguntasContainer');
+        const emptyState = document.getElementById('emptyState');
+
+        if (preguntas.length === 0) {
+            container.innerHTML = '';
+            emptyState.classList.remove('d-none');
+            return;
+        }
+
+        emptyState.classList.add('d-none');
+
+        let html = '';
+        preguntas.forEach((pregunta, index) => {
+            html += crearPreguntaCard(pregunta, index);
+        });
+
+        container.innerHTML = html;
+
+        // Inicializar drag & drop para reordenar
+        inicializarSortable();
+    }
+
+    function crearPreguntaCard(pregunta, index) {
+        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+        let opcionesHtml = '';
+        pregunta.opciones.forEach((opcion, idx) => {
+            const claseCorrecta = opcion.isCorrecto ? 'correcta' : '';
+            opcionesHtml += `
+                    <div class="opcion-respuesta ${claseCorrecta}">
+                        <div class="opcion-letra">${letras[idx]}</div>
+                        <div class="flex-grow-1">${escaparHTML(opcion.textoOpcion)}</div>
+                        ${opcion.isCorrecto ? '<i class="bi bi-check-circle-fill text-success"></i>' : ''}
+                    </div>
+                `;
+        });
+
+        return `
+                <div class="pregunta-card" data-pregunta-id="${pregunta.preguntaId}" data-aos="fade-up" data-aos-delay="${index * 100}">
+                    <div class="pregunta-header">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="pregunta-numero">${pregunta.orderPregunta}</div>
+                            <div>
+                                <h5 class="mb-1">${escaparHTML(pregunta.contenido)}</h5>
+                                <div>
+                                    <span class="badge badge-info bg-primary">${pregunta.tipo}</span>
+                                    <span class="badge badge-info bg-warning text-dark">${pregunta.puntos} pts</span>
+                                    <span class="badge badge-info bg-info">${pregunta.limiteTiempo}s</span>
+                                    <span class="badge badge-info bg-secondary">${pregunta.dificultad}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pregunta-acciones">
+                            <button class="btn btn-sm btn-outline-primary" onclick="editarPregunta(${pregunta.preguntaId})" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="confirmarEliminarPregunta(${pregunta.preguntaId})" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" title="Mover" style="cursor: move;">
+                                <i class="bi bi-grip-vertical"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pregunta-opciones">
+                        ${opcionesHtml}
+                    </div>
+                    ${pregunta.explicacion ? `
+                        <div class="mt-3 p-3" style="background: #f8f9fa; border-radius: 10px;">
+                            <small><i class="bi bi-lightbulb me-2"></i><strong>Explicación:</strong> ${escaparHTML(pregunta.explicacion)}</small>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+    }
+
+    // ========== MODAL NUEVA PREGUNTA ==========
+
+    function abrirModalNuevaPregunta() {
+        modoEdicion = false;
+        document.getElementById('modalPreguntaTitulo').textContent = 'Nueva Pregunta';
+        document.getElementById('formPregunta').reset();
+        document.getElementById('preguntaIdEdit').value = '';
+
+        // Limpiar opciones
+        document.getElementById('opcionesContainer').innerHTML = '';
+        contadorOpciones = 0;
+
+        // Agregar 4 opciones por defecto
+        for (let i = 0; i < 4; i++) {
+            agregarOpcion();
+        }
+
+        modalPregunta.show();
+    }
+
+    function agregarOpcion() {
+        if (contadorOpciones >= 6) {
+            mostrarAlerta('Máximo 6 opciones permitidas', 'error');
+            return;
+        }
+
+        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const letra = letras[contadorOpciones];
+        contadorOpciones++;
+
+        const html = `
+                <div class="opcion-input-group" data-opcion-index="${contadorOpciones}">
+                    <span class="opcion-letra">${letra}</span>
+                    <input
+                        type="text"
+                        class="form-input"
+                        placeholder="Escribe la opción ${letra}"
+                        required
+                    >
+                    <div class="form-check">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="opcionCorrecta"
+                            value="${contadorOpciones}"
+                            ${contadorOpciones === 1 ? 'checked' : ''}
+                        >
+                        <label class="form-check-label">Correcta</label>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger btn-remover-opcion"
+                        onclick="removerOpcion(this)"
+                        ${contadorOpciones <= 2 ? 'disabled' : ''}
+                    >
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            `;
+
+        document.getElementById('opcionesContainer').insertAdjacentHTML('beforeend', html);
+
+        // Actualizar botón de agregar
+        const btnAgregar = document.getElementById('btnAgregarOpcion');
+        if (contadorOpciones >= 6) {
+            btnAgregar.disabled = true;
+        }
+    }
+
+    function removerOpcion(btn) {
+        const opcionDiv = btn.closest('.opcion-input-group');
+        opcionDiv.remove();
+        contadorOpciones--;
+
+        // Actualizar botón
+        document.getElementById('btnAgregarOpcion').disabled = false;
+
+        // Renumerar opciones
+        const opciones = document.querySelectorAll('.opcion-input-group');
+        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+        opciones.forEach((opt, idx) => {
+            opt.querySelector('.opcion-letra').textContent = letras[idx];
+            opt.querySelector('input[type="radio"]').value = idx + 1;
+
+            // Deshabilitar botón eliminar si hay solo 2
+            const btnEliminar = opt.querySelector('.btn-remover-opcion');
+            btnEliminar.disabled = opciones.length <= 2;
+        });
+    }
+
+    // ========== GUARDAR PREGUNTA ==========
+
+    async function guardarPregunta() {
+        const contenido = document.getElementById('contenidoPregunta').value.trim();
+
+        if (!contenido) {
+            mostrarAlerta('El contenido de la pregunta es obligatorio', 'error');
+            return;
+        }
+
+        // Recopilar opciones
+        const opcionesInputs = document.querySelectorAll('.opcion-input-group');
+        const opciones = [];
+        let hayCorrecta = false;
+
+        opcionesInputs.forEach((opcionDiv, index) => {
+            const texto = opcionDiv.querySelector('input[type="text"]').value.trim();
+            const radio = opcionDiv.querySelector('input[type="radio"]');
+            const isCorrecto = radio.checked;
+
+            if (texto) {
+                opciones.push({
+                    textoOpcion: texto,
+                    isCorrecto: isCorrecto
+                });
+
+                if (isCorrecto) hayCorrecta = true;
+            }
+        });
+
+        if (opciones.length < 2) {
+            mostrarAlerta('Debe haber al menos 2 opciones', 'error');
+            return;
+        }
+
+        if (!hayCorrecta) {
+            mostrarAlerta('Debe marcar una opción como correcta', 'error');
+            return;
+        }
+
+        // ✅ CAMBIO: Construir el objeto correctamente
+        const datos = {
+            triviaId: parseInt(triviaId),
+            contenido: contenido,
+            tipo: document.getElementById('tipoPregunta').value,
+            puntos: parseInt(document.getElementById('puntosPregunta').value),
+            limiteTiempo: parseInt(document.getElementById('tiempoPregunta').value),
+            dificultad: document.getElementById('dificultadPregunta').value,
+            imagenPregunta: document.getElementById('imagenPregunta').value.trim() || null,
+            explicacion: document.getElementById('explicacionPregunta').value.trim() || null,
+            opciones: opciones
+        };
+
+        console.log('📤 Enviando datos:', datos); // Para debugging
+
+        const btn = document.getElementById('btnGuardarPregunta');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+
+        try {
+            let response;
+
+            if (modoEdicion) {
+                const preguntaId = document.getElementById('preguntaIdEdit').value;
+                // ✅ CAMBIO: Usar fetch directamente para PUT
+                const res = await fetch(`/SparkyTrivia/api/preguntas/editar/${preguntaId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(datos),
+                    credentials: 'include'
+                });
+                response = await res.json();
+            } else {
+                // ✅ CAMBIO: Usar fetch directamente para POST
+                const res = await fetch('/SparkyTrivia/api/preguntas/crear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(datos),
+                    credentials: 'include'
+                });
+
+                console.log('📥 Respuesta status:', res.status);
+                const responseText = await res.text();
+                console.log('📥 Respuesta texto:', responseText);
+
+                try {
+                    response = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Error al parsear JSON:', e);
+                    console.error('Respuesta recibida:', responseText);
+                    throw new Error('Respuesta inválida del servidor');
+                }
+            }
+
+            console.log('📥 Respuesta parseada:', response);
+
+            if (response.success) {
+                mostrarAlerta(modoEdicion ? 'Pregunta actualizada' : 'Pregunta creada', 'success');
+                modalPregunta.hide();
+                cargarPreguntas();
+            } else {
+                mostrarAlerta(response.message, 'error');
+            }
+        } catch (error) {
+            console.error('❌ Error completo:', error);
+            mostrarAlerta('Error: ' + error.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Guardar Pregunta';
+        }
+    }
+
+    // ========== EDITAR PREGUNTA ==========
+
+    function editarPregunta(preguntaId) {
+        const pregunta = preguntas.find(p => p.preguntaId === preguntaId);
+        if (!pregunta) return;
+
+        modoEdicion = true;
+        document.getElementById('modalPreguntaTitulo').textContent = 'Editar Pregunta';
+        document.getElementById('preguntaIdEdit').value = preguntaId;
+
+        // Llenar formulario
+        document.getElementById('contenidoPregunta').value = pregunta.contenido;
+        document.getElementById('tipoPregunta').value = pregunta.tipo;
+        document.getElementById('puntosPregunta').value = pregunta.puntos;
+        document.getElementById('tiempoPregunta').value = pregunta.limiteTiempo;
+        document.getElementById('dificultadPregunta').value = pregunta.dificultad;
+        document.getElementById('imagenPregunta').value = pregunta.imagenPregunta || '';
+        document.getElementById('explicacionPregunta').value = pregunta.explicacion || '';
+
+        // Limpiar y llenar opciones
+        document.getElementById('opcionesContainer').innerHTML = '';
+        contadorOpciones = 0;
+
+        pregunta.opciones.forEach((opcion, idx) => {
+            agregarOpcion();
+            const opcionDiv = document.querySelectorAll('.opcion-input-group')[idx];
+            opcionDiv.querySelector('input[type="text"]').value = opcion.textoOpcion;
+            opcionDiv.querySelector('input[type="radio"]').checked = opcion.isCorrecto;
+        });
+
+        modalPregunta.show();
+    }
+
+    // ========== ELIMINAR PREGUNTA ==========
+
+    function confirmarEliminarPregunta(preguntaId) {
+        if (confirm('¿Estás seguro de eliminar esta pregunta? Esta acción no se puede deshacer.')) {
+            eliminarPregunta(preguntaId);
+        }
+    }
+
+    async function eliminarPregunta(preguntaId) {
+        try {
+            const response = await fetch(`/SparkyTrivia/api/preguntas/eliminar/${preguntaId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                mostrarAlerta('Pregunta eliminada', 'success');
+                cargarPreguntas();
+            } else {
+                mostrarAlerta(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta('Error de conexión', 'error');
+        }
+    }
+
+    // ========== DRAG & DROP PARA REORDENAR ==========
+
+    function inicializarSortable() {
+        const container = document.getElementById('preguntasContainer');
+
+        if (typeof Sortable !== 'undefined') {
+            Sortable.create(container, {
+                animation: 150,
+                handle: '.btn-outline-secondary',
+                onEnd: function(evt) {
+                    actualizarOrden();
+                }
+            });
+        }
+    }
+
+    async function actualizarOrden() {
+        const cards = document.querySelectorAll('.pregunta-card');
+        const nuevoOrden = Array.from(cards).map(card =>
+            parseInt(card.getAttribute('data-pregunta-id'))
+        );
+
+        try {
+            const response = await postRequest('/SparkyTrivia/api/preguntas/reordenar', {
+                triviaId: parseInt(triviaId),
+                nuevoOrden: nuevoOrden
+            });
+
+            if (response.success) {
+                cargarPreguntas();
+            }
+        } catch (error) {
+            console.error('Error al reordenar:', error);
+        }
+    }
+
+    // ========== UTILIDADES ==========
+
+    async function putRequest(url, data) {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            credentials: 'include'
+        });
+        return await response.json();
+    }
+
+    function volverATrivias() {
+        window.location.href = 'mis-trivias.html';
+    }
+</script>
+</body>
+</html>

@@ -10,7 +10,10 @@
 
         <!-- Entidades -->
         <class>org.example.sparkytrivia.model.Usuario</class>
-        <class>org.example.sparkytrivia.model.Trivia</class> <!-- ← AGREGAR ESTA LÍNEA -->
+        <class>org.example.sparkytrivia.model.Trivia</class>
+        <class>org.example.sparkytrivia.model.Preguntas</class>
+        <class>org.example.sparkytrivia.model.OpcionesRespuesta</class>
+
 
         <!-- Excluir escaneo automático -->
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
