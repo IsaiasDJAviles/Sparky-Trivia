@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Trivias - Sparky Trivia</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /*FIX: Asegurar que particles esté detrás */
+        #particles-js {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1 !important;
+        }
+
+        .trivias-container {
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        /* FIX: Container debe ser visible */
+        #triviasContainer {
+            display: block !important;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .trivias-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .trivia-card {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(15px);
+            border-radius: var(--radius-lg);
+            padding: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .trivia-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--sombra-fuerte);
+            border-color: var(--color-azul-claro);
+        }
+
+        .trivia-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+
+        .trivia-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .trivia-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--color-negro);
+            margin: 0;
+            flex: 1;
+        }
+
+        .trivia-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-borrador {
+            background: rgba(255, 193, 7, 0.2);
+            color: #f39c12;
+        }
+
+        .status-activo {
+            background: rgba(45, 206, 137, 0.2);
+            color: #27ae60;
+        }
+
+        .status-archivado {
+            background: rgba(149, 165, 166, 0.2);
+            color: #7f8c8d;
+        }
+
+        .trivia-description {
+            color: var(--color-gris);
+            font-size: 0.95rem;
+            margin: 15px 0;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .trivia-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.03);
+            border-radius: var(--radius-sm);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .meta-item i {
+            color: var(--color-azul-claro);
+            font-size: 1.1rem;
+        }
+
+        .trivia-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-azul-claro);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--color-gris);
+        }
+
+        .trivia-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-edit {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--sombra-media);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .empty-state img {
+            max-width: 250px;
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .empty-state h2 {
+            font-size: 2rem;
+            color: var(--color-negro);
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            color: var(--color-gris);
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+
+        .fab-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: var(--gradient-success);
+            color: white;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: var(--sombra-fuerte);
+            transition: all var(--transition-normal);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab-button:hover {
+            transform: scale(1.15) rotate(90deg);
+            box-shadow: 0 15px 50px rgba(45, 206, 137, 0.5);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-azul-claro);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: all var(--transition-fast);
+            position: relative;
+            z-index: 2;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+            color: var(--color-morado);
+        }
+
+        /* FIX: Spinner debe ocultarse completamente */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            position: relative;
+            z-index: 2;
+        }
+
+        #loadingSpinner.d-none {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+
+        @media (max-width: 768px) {
+            .trivias-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .trivia-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .fab-button {
+                bottom: 20px;
+                right: 20px;
+                width: 55px;
+                height: 55px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<header class="header">
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="images/sparky_logo.png" alt="Sparky">
+            <h1>Sparky Trivia</h1>
+        </div>
+    </div>
+</header>
+
+<div class="trivias-container">
+    <div class="container">
+        <a href="dashboard.html" class="back-link">
+            <i class="bi bi-arrow-left-circle"></i> Volver al Dashboard
+        </a>
+
+        <div class="sparky-container" data-aos="zoom-in">
+            <img src="images/sparky_mistrivias.png?v=3" alt="Sparky" id="sparky">
+        </div>
+
+        <div class="page-header" data-aos="fade-down">
+            <h1>Mis Trivias</h1>
+            <p class="text-muted">Administra tus sets de estudio personalizados</p>
+        </div>
+
+        <!-- Loading spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="loader"></div>
+        </div>
+
+        <!-- Contenedor de trivias -->
+        <div id="triviasContainer"></div>
+
+        <!-- Estado vacío (se muestra si no hay trivias) -->
+        <div id="emptyState" class="empty-state d-none" data-aos="fade-up">
+            <img src="images/sparky_sintrivias.png" alt="Sparky sin trivias">
+            <h2>¡Aún no tienes trivias!</h2>
+            <p>Crea tu primera trivia y comienza a estudiar de forma divertida</p>
+            <button class="btn btn-verde btn-ripple" onclick="window.location.href='crear-trivia.html'">
+                <i class="bi bi-plus-circle-fill me-2"></i>Crear Mi Primera Trivia
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Botón flotante para crear trivia -->
+<button class="fab-button" onclick="window.location.href='crear-trivia.html'" title="Crear nueva trivia">
+    <i class="bi bi-plus-lg"></i>
+</button>
+
+<footer class="footer">
+    <p>&copy; 2025 Sparky Trivia | Renata Castro & Isaías Avilés</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.0/dist/vanilla-tilt.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Proteger página
+        protegerPagina('login.html');
+
+        const usuario = obtenerUsuario();
+        if (!usuario) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        console.log('✅ Usuario:', usuario);
+
+        await cargarMisTrivias();
+    });
+
+    // Función para cargar trivias del usuario
+    async function cargarMisTrivias() {
+        const container = document.getElementById('triviasContainer');
+        const spinner = document.getElementById('loadingSpinner');
+        const emptyState = document.getElementById('emptyState');
+
+        console.log('🔄 Iniciando carga de trivias...');
+
+        try {
+            spinner.classList.remove('d-none');
+            container.innerHTML = '';
+            emptyState.classList.add('d-none');
+
+            const response = await getRequest('api/trivias/listar?mias=true');
+
+            console.log('📥 Respuesta del servidor:', response);
+
+            spinner.classList.add('d-none');
+
+            if (response.success && response.trivias && response.trivias.length > 0) {
+                console.log(`✅ MOSTRANDO ${response.trivias.length} TRIVIAS`);
+                emptyState.classList.add('d-none');
+                mostrarTrivias(response.trivias);
+            } else {
+                console.log('ℹ️ No hay trivias para mostrar');
+                container.innerHTML = '';
+                emptyState.classList.remove('d-none');
+            }
+
+        } catch (error) {
+            console.error('Error al cargar trivias:', error);
+            spinner.classList.add('d-none');
+            container.innerHTML = `
+                <div class="alert alert-error">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Error al cargar las trivias. Por favor, intenta de nuevo.
+                </div>
+            `;
+        }
+    }
+
+    // Función para renderizar trivias en el DOM
+    function mostrarTrivias(trivias) {
+        console.log('🎨 Renderizando trivias...');
+
+        const container = document.getElementById('triviasContainer');
+
+        const grid = document.createElement('div');
+        grid.className = 'trivias-grid';
+
+        trivias.forEach((trivia, index) => {
+            const card = crearCardTrivia(trivia, index);
+            grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+        console.log('✅ Trivias renderizadas en el DOM');
+
+        // Aplicar Tilt.js a las cards
+        if (typeof VanillaTilt !== 'undefined') {
+            VanillaTilt.init(document.querySelectorAll('.trivia-card'), {
+                max: 8,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.2,
+            });
+        }
+    }
+
+    // Función para crear una card de trivia
+    function crearCardTrivia(trivia, index) {
+        const card = document.createElement('div');
+        card.className = 'trivia-card';
+        card.setAttribute('data-aos', 'fade-up');
+        card.setAttribute('data-aos-delay', (index * 100).toString());
+
+        const statusClass = `status-${trivia.status}`;
+        const statusText = {
+            'borrador': 'Borrador',
+            'activo': 'Activo',
+            'archivado': 'Archivado'
+        }[trivia.status] || 'Borrador';
+
+        card.innerHTML = `
+            <div class="trivia-header">
+                <h3 class="trivia-title">${escaparHTML(trivia.titulo)}</h3>
+                <span class="trivia-status ${statusClass}">${statusText}</span>
+            </div>
+
+            ${trivia.descripcion ? `
+                <p class="trivia-description">${escaparHTML(trivia.descripcion)}</p>
+            ` : ''}
+
+            <div class="trivia-meta">
+                <div class="meta-item">
+                    <i class="bi bi-bookmark-fill"></i>
+                    <span>${trivia.categoria || 'General'}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>${trivia.dificultad || 'Medio'}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="bi bi-clock-fill"></i>
+                    <span>${trivia.tiempoEstimado || 15} min</span>
+                </div>
+                <div class="meta-item">
+                    <i class="bi bi-globe"></i>
+                    <span>${trivia.esPublico ? 'Pública' : 'Privada'}</span>
+                </div>
+            </div>
+
+            <div class="trivia-stats">
+                <div class="stat-item">
+                    <span class="stat-value">${trivia.preguntasTotales || 0}</span>
+                    <span class="stat-label">Preguntas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">${trivia.vecesJugada || 0}</span>
+                    <span class="stat-label">Jugadas</span>
+                </div>
+            </div>
+
+            <div class="trivia-actions">
+                <button class="btn-action btn-edit" onclick="editarTrivia(${trivia.triviaId})">
+                    <i class="bi bi-pencil-fill"></i> Editar
+                </button>
+                <button class="btn-action btn-delete" onclick="confirmarEliminar(${trivia.triviaId}, '${escaparHTML(trivia.titulo)}')">
+                    <i class="bi bi-trash-fill"></i> Eliminar
+                </button>
+            </div>
+        `;
+
+        return card;
+    }
+
+    // Función para editar trivia
+    function editarTrivia(triviaId) {
+        window.location.href = `editar-trivia.html?id=${triviaId}`;
+    }
+
+    // Función para confirmar eliminación
+    function confirmarEliminar(triviaId, titulo) {
+        const confirmacion = confirm(`¿Estás seguro de que deseas eliminar la trivia "${titulo}"?\n\nEsta acción no se puede deshacer.`);
+
+        if (confirmacion) {
+            eliminarTrivia(triviaId);
+        }
+    }
+
+    // Función para eliminar trivia
+    async function eliminarTrivia(triviaId) {
+        try {
+            console.log('Eliminando trivia:', triviaId);
+
+            const url = `api/trivias/eliminar/${triviaId}`;
+
+            const response = await fetch(`/SparkyTrivia/${url}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                mostrarAlerta('Trivia eliminada correctamente', 'success');
+                await cargarMisTrivias();
+            } else {
+                mostrarAlerta(data.message || 'Error al eliminar la trivia', 'error');
+            }
+
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+            mostrarAlerta('Error de conexión al eliminar la trivia', 'error');
+        }
+    }
+</script>
+</body>
+</html>

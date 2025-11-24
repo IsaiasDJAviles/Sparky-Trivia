@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Trivia - Sparky Trivia</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .trivia-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .trivia-card { max-width: 650px; width: 100%; animation: fadeInDown 0.6s ease; }
+
+        .form-group { position: relative; margin-bottom: 25px; }
+        .form-group .form-input,
+        .form-group .form-select,
+        .form-group .form-textarea {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            z-index: 1;
+            position: relative;
+        }
+        .form-group .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-group .icon-decorator {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gris);
+            font-size: 1.1rem;
+            pointer-events: none;
+            z-index: 2;
+            transition: color 0.3s;
+        }
+        .form-group.textarea-group .icon-decorator {
+            top: 25px;
+            transform: none;
+        }
+        .form-group .form-input:focus + .icon-decorator,
+        .form-group .form-select:focus + .icon-decorator,
+        .form-group .form-textarea:focus + .icon-decorator {
+            color: var(--color-azul-claro);
+        }
+
+        .form-select {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e9ecef;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-azul-claro);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(94, 114, 228, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-textarea {
+            border: 2px solid #e9ecef;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all var(--transition-normal);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--color-azul-claro);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(94, 114, 228, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-md);
+            border: 2px solid #e9ecef;
+            transition: all var(--transition-normal);
+        }
+        .checkbox-group:hover {
+            border-color: var(--color-azul-claro);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-azul-claro);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all var(--transition-fast);
+        }
+        .back-link:hover {
+            transform: translateX(-5px);
+            color: var(--color-morado);
+        }
+
+        @media (max-width: 576px) {
+            .two-col-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<header class="header">
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="images/sparky_logo.png" alt="Sparky">
+            <h1>Sparky Trivia</h1>
+        </div>
+    </div>
+</header>
+
+<div class="trivia-container">
+    <div class="trivia-card card card-tilt" data-aos="fade-up">
+        <a href="mis-trivias.html" class="back-link">
+            <i class="bi bi-arrow-left-circle"></i> Volver a Mis Trivias
+        </a>
+
+        <div class="sparky-container" data-aos="zoom-in">
+            <img src="images/sparky_editartrivias.png" alt="Sparky" id="sparkyeditar">
+        </div>
+
+        <h2 class="card-title text-gradient">Editar Trivia</h2>
+        <p class="text-center text-muted mb-4">Modifica tu set de estudio</p>
+
+        <div id="alertContainer"></div>
+
+        <!-- Loading -->
+        <div id="loadingForm" class="text-center" style="padding: 40px;">
+            <div class="loader"></div>
+            <p class="mt-3 text-muted">Cargando trivia...</p>
+        </div>
+
+        <!-- Formulario (oculto inicialmente) -->
+        <form id="triviaForm" class="d-none">
+            <input type="hidden" id="triviaId">
+
+            <!-- Título -->
+            <div class="form-group">
+                <label for="titulo" class="form-label">
+                    <i class="bi bi-card-heading"></i> Título de la Trivia *
+                </label>
+                <input
+                        type="text"
+                        class="form-input"
+                        id="titulo"
+                        placeholder="Ej: Historia de México"
+                        required
+                        minlength="3"
+                        maxlength="255"
+                >
+                <i class="bi bi-card-heading icon-decorator"></i>
+                <span class="error-message d-none" id="tituloError"></span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="form-group textarea-group">
+                <label for="descripcion" class="form-label">
+                    <i class="bi bi-text-paragraph"></i> Descripción
+                </label>
+                <textarea
+                        class="form-textarea"
+                        id="descripcion"
+                        placeholder="Describe brevemente de qué trata tu trivia..."
+                        style="padding-left: 50px;"
+                ></textarea>
+                <i class="bi bi-text-paragraph icon-decorator"></i>
+            </div>
+
+            <!-- Categoría y Dificultad -->
+            <div class="two-col-grid">
+                <div class="form-group">
+                    <label for="categoria" class="form-label">
+                        <i class="bi bi-bookmark-fill"></i> Categoría
+                    </label>
+                    <select class="form-select" id="categoria" style="padding-left: 50px;">
+                        <option value="general">General</option>
+                        <option value="ciencia">Ciencia</option>
+                        <option value="historia">Historia</option>
+                        <option value="geografia">Geografía</option>
+                        <option value="arte">Arte y Cultura</option>
+                        <option value="deportes">Deportes</option>
+                        <option value="entretenimiento">Entretenimiento</option>
+                        <option value="tecnologia">Tecnología</option>
+                        <option value="matematicas">Matemáticas</option>
+                        <option value="literatura">Literatura</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                    <i class="bi bi-bookmark-fill icon-decorator"></i>
+                </div>
+
+                <div class="form-group">
+                    <label for="dificultad" class="form-label">
+                        <i class="bi bi-speedometer2"></i> Dificultad
+                    </label>
+                    <select class="form-select" id="dificultad" style="padding-left: 50px;">
+                        <option value="facil">Fácil</option>
+                        <option value="medio">Medio</option>
+                        <option value="dificil">Difícil</option>
+                    </select>
+                    <i class="bi bi-speedometer2 icon-decorator"></i>
+                </div>
+            </div>
+
+            <!-- Tiempo Estimado y Foto Portada -->
+            <div class="two-col-grid">
+                <div class="form-group">
+                    <label for="tiempoEstimado" class="form-label">
+                        <i class="bi bi-clock-fill"></i> Tiempo Estimado (min)
+                    </label>
+                    <input
+                            type="number"
+                            class="form-input"
+                            id="tiempoEstimado"
+                            placeholder="15"
+                            min="1"
+                            max="120"
+                    >
+                    <i class="bi bi-clock-fill icon-decorator"></i>
+                </div>
+
+                <div class="form-group">
+                    <label for="fotoPortada" class="form-label">
+                        <i class="bi bi-image-fill"></i> Foto de Portada (URL)
+                    </label>
+                    <input
+                            type="url"
+                            class="form-input"
+                            id="fotoPortada"
+                            placeholder="https://..."
+                    >
+                    <i class="bi bi-image-fill icon-decorator"></i>
+                </div>
+            </div>
+
+            <!-- Status y Es Público -->
+            <div class="two-col-grid">
+                <div class="form-group">
+                    <label for="status" class="form-label">
+                        <i class="bi bi-flag-fill"></i> Estado
+                    </label>
+                    <select class="form-select" id="status" style="padding-left: 50px;">
+                        <option value="borrador">Borrador</option>
+                        <option value="activo">Activo</option>
+                        <option value="archivado">Archivado</option>
+                    </select>
+                    <i class="bi bi-flag-fill icon-decorator"></i>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="esPublico">
+                        <label for="esPublico" class="form-label">
+                            <i class="bi bi-globe"></i> <strong>Pública</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="two-col-grid">
+                <button type="button" class="btn btn-rojo btn-ripple" onclick="window.location.href='mis-trivias.html'">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+                <button type="submit" class="btn btn-verde btn-ripple" id="btnGuardar">
+                    <i class="bi bi-check-circle-fill me-2"></i>Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 Sparky Trivia | Renata Castro & Isaías Avilés</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.0/dist/vanilla-tilt.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    let triviaId = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        protegerPagina('login.html');
+
+        const usuario = obtenerUsuario();
+        if (!usuario) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Obtener ID de la URL
+        const params = new URLSearchParams(window.location.search);
+        triviaId = params.get('id');
+
+        if (!triviaId) {
+            mostrarAlerta('ID de trivia no especificado', 'error');
+            setTimeout(() => window.location.href = 'mis-trivias.html', 2000);
+            return;
+        }
+
+        await cargarTrivia();
+    });
+
+    async function cargarTrivia() {
+        const loadingForm = document.getElementById('loadingForm');
+        const form = document.getElementById('triviaForm');
+        const sparky = document.getElementById('sparkyeditar');
+
+        try {
+            const response = await getRequest(`api/trivias/${triviaId}`);
+
+            console.log('📥 Trivia cargada:', response);
+
+            if (response.success && response.trivia) {
+                const trivia = response.trivia;
+
+                // Llenar formulario
+                document.getElementById('triviaId').value = trivia.triviaId;
+                document.getElementById('titulo').value = trivia.titulo || '';
+                document.getElementById('descripcion').value = trivia.descripcion || '';
+                document.getElementById('categoria').value = trivia.categoria || 'general';
+                document.getElementById('dificultad').value = trivia.dificultad || 'medio';
+                document.getElementById('tiempoEstimado').value = trivia.tiempoEstimado || 15;
+                document.getElementById('fotoPortada').value = trivia.fotoPortada || '';
+                document.getElementById('status').value = trivia.status || 'borrador';
+                document.getElementById('esPublico').checked = trivia.esPublico !== false;
+
+                // Mostrar formulario
+                loadingForm.classList.add('d-none');
+                form.classList.remove('d-none');
+
+                // Inicializar submit
+                form.addEventListener('submit', actualizarTrivia);
+
+            } else {
+                throw new Error('No se pudo cargar la trivia');
+            }
+
+        } catch (error) {
+            console.error('Error al cargar trivia:', error);
+            mostrarAlerta('Error al cargar la trivia', 'error');
+            setTimeout(() => window.location.href = 'mis-trivias.html', 2000);
+        }
+    }
+
+    async function actualizarTrivia(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById('btnGuardar');
+        const sparky = document.getElementById('sparkyeditar');
+
+        const data = {
+            titulo: document.getElementById('titulo').value.trim(),
+            descripcion: document.getElementById('descripcion').value.trim() || null,
+            categoria: document.getElementById('categoria').value,
+            dificultad: document.getElementById('dificultad').value,
+            tiempoEstimado: parseInt(document.getElementById('tiempoEstimado').value) || 15,
+            fotoPortada: document.getElementById('fotoPortada').value.trim() || null,
+            status: document.getElementById('status').value,
+            esPublico: document.getElementById('esPublico').checked
+        };
+
+        if (!data.titulo || data.titulo.length < 3) {
+            mostrarAlerta('El título es obligatorio (mín. 3 caracteres)', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Guardando...';
+
+        try {
+            const url = `api/trivias/actualizar/${triviaId}`;
+
+            const response = await fetch(`/SparkyTrivia/${url}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data),
+                credentials: 'include'
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                mostrarAlerta('¡Trivia actualizada exitosamente! 🎉', 'success');
+
+                if (typeof SparkyAnimations !== 'undefined') {
+                    SparkyAnimations.sparkyHappy(sparky);
+                    SparkyAnimations.confetti();
+                }
+
+                setTimeout(() => window.location.href = 'mis-trivias.html', 1500);
+            } else {
+                throw new Error(result.message || 'Error al actualizar');
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarAlerta(error.message || 'Error al actualizar la trivia', 'error');
+
+            if (typeof SparkyAnimations !== 'undefined') {
+                SparkyAnimations.sparkySad(sparky);
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Guardar Cambios';
+        }
+    }
+</script>
+</body>
+</html>

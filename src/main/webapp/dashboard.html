@@ -4,113 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sparky Trivia</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
         .dashboard-container {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 40px 20px;
         }
-        .dashboard-card {
-            max-width: 900px;
-            width: 100%;
-            animation: fadeInDown 0.6s ease;
-        }
 
-        .user-welcome {
+        .welcome-section {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 60px;
         }
-        .user-welcome h2 {
+
+        .welcome-section h1 {
             font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        .user-info {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 20px;
-            background: rgba(102, 126, 234, 0.1);
-            border-radius: var(--radius-md);
-            margin-top: 10px;
+            margin-bottom: 15px;
         }
 
-        .actions-grid {
+        .sparky-avatar {
+            max-width: 180px;
+            margin-bottom: 25px;
+        }
+
+        /* GRID 2x2 FIJO */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(2, 1fr);  /* 2 columnas */
+            grid-template-rows: repeat(2, 1fr);     /* 2 filas */
+            gap: 30px;
+            max-width: 800px;  /* Controla el ancho máximo del grid */
+            margin: 0 auto 40px;
         }
 
-        .action-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 30px;
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
             border-radius: var(--radius-lg);
-            border: 2px solid transparent;
+            padding: 40px 30px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             transition: all var(--transition-normal);
             cursor: pointer;
-            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 220px;  /* Altura mínima para cards uniformes */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
-        .action-card:hover {
-            transform: translateY(-8px);
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .dashboard-card.card-azul::before { background: var(--gradient-primary); }
+        .dashboard-card.card-amarillo::before { background: var(--gradient-warning); }
+        .dashboard-card.card-rojo::before { background: var(--gradient-danger); }
+        .dashboard-card.card-verde::before { background: var(--gradient-success); }
+
+        .dashboard-card:hover {
+            transform: translateY(-15px);
             box-shadow: var(--sombra-fuerte);
-            border-color: rgba(102, 126, 234, 0.3);
         }
 
-        .action-card.blue { background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)); }
-        .action-card.blue:hover { box-shadow: var(--sombra-azul); }
-
-        .action-card.yellow { background: linear-gradient(135deg, rgba(255, 214, 0, 0.15), rgba(251, 99, 64, 0.15)); }
-        .action-card.yellow:hover { box-shadow: 0 8px 30px rgba(255, 214, 0, 0.3); }
-
-        .action-card.red { background: linear-gradient(135deg, rgba(245, 54, 92, 0.15), rgba(251, 99, 64, 0.15)); }
-        .action-card.red:hover { box-shadow: var(--sombra-roja); }
-
-        .action-card.green { background: linear-gradient(135deg, rgba(45, 206, 137, 0.15), rgba(17, 205, 239, 0.15)); }
-        .action-card.green:hover { box-shadow: var(--sombra-verde); }
-
-        .action-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            display: block;
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
         }
-        .action-card.blue .action-icon { color: #667eea; }
-        .action-card.yellow .action-icon { color: #ffd600; }
-        .action-card.red .action-icon { color: #f5365c; }
-        .action-card.green .action-icon { color: #2dce89; }
 
-        .action-title {
-            font-size: 1.3rem;
+        .card-azul .card-icon { color: #5e72e4; }
+        .card-amarillo .card-icon { color: #ffd600; }
+        .card-rojo .card-icon { color: #f5365c; }
+        .card-verde .card-icon { color: #2dce89; }
+
+        .card-title {
+            font-size: 1.5rem;
             font-weight: 700;
-            margin-bottom: 8px;
             color: var(--color-negro);
+            margin-bottom: 10px;
         }
-        .action-description {
-            font-size: 0.9rem;
+
+        .card-description {
+            color: var(--color-gris);
+            font-size: 0.95rem;
+        }
+
+        .btn-explorar {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: var(--radius-lg);
+            padding: 20px 30px;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-details {
+            text-align: left;
+        }
+
+        .user-details strong {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--color-azul-claro);
+        }
+
+        .user-details small {
             color: var(--color-gris);
         }
 
-        .logout-section {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(0,0,0,0.1);
+        /* RESPONSIVE: En móviles vuelve a 1 columna */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;  /* 1 columna en móvil */
+                grid-template-rows: auto;
+                max-width: 400px;
+            }
+
+            .dashboard-card {
+                min-height: 200px;
+            }
+
+            .user-info {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .user-details {
+                text-align: center;
+            }
+
+            .card-icon {
+                font-size: 3rem;
+            }
+
+            .card-title {
+                font-size: 1.3rem;
+            }
         }
 
-        @media (max-width: 768px) {
-            .actions-grid {
-                grid-template-columns: 1fr;
+        /* TABLET: Mantiene 2x2 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .dashboard-grid {
+                max-width: 700px;
             }
-            .user-welcome h2 {
-                font-size: 1.8rem;
+
+            .dashboard-card {
+                padding: 30px 20px;
+                min-height: 200px;
+            }
+
+            .card-icon {
+                font-size: 3.5rem;
             }
         }
     </style>
@@ -120,7 +183,7 @@
 
 <header class="header">
     <div class="header-content">
-        <div class="logo" onclick="window.location.href='dashboard.html'">
+        <div class="logo">
             <img src="images/sparky_logo.png" alt="Sparky">
             <h1>Sparky Trivia</h1>
         </div>
@@ -128,60 +191,60 @@
 </header>
 
 <div class="dashboard-container">
-    <div class="dashboard-card card card-tilt" data-aos="fade-up">
-        <div class="sparky-container" data-aos="zoom-in">
-            <img src="images/sparky_feliz.png?v=3" alt="Sparky" id="sparky">
-        </div>
-
-        <div class="user-welcome">
-            <h2 class="text-gradient">¡Bienvenido, <span id="userNickname"></span>! 🎉</h2>
+    <div class="container">
+        <!-- Sección de bienvenida -->
+        <div class="welcome-section" data-aos="fade-down">
+            <img src="images/sparky_feliz.png" alt="Sparky" class="sparky-avatar">
+            <h1>¡Bienvenido, <span id="userNickname">Usuario</span>! 🎉</h1>
             <p class="text-muted">¿Qué te gustaría hacer hoy?</p>
-            <div class="user-info">
-                <i class="bi bi-person-circle"></i>
-                <span id="userEmail"></span>
-            </div>
         </div>
 
-        <div class="actions-grid">
-            <!-- Crear Sala -->
-            <div class="action-card blue" onclick="window.location.href='crear-sala.html'" data-aos="fade-right">
-                <i class="bi bi-door-open-fill action-icon"></i>
-                <h3 class="action-title">Crear Sala</h3>
-                <p class="action-description">Inicia una nueva partida de trivia</p>
+        <!-- Info del usuario -->
+        <div class="user-info" data-aos="fade-up">
+            <div class="user-details">
+                <strong><i class="bi bi-person-circle me-2"></i><span id="userNicknameInfo"></span></strong>
+                <small><i class="bi bi-envelope me-2"></i><span id="userEmail"></span></small>
             </div>
-
-            <!-- Unirme a Sala -->
-            <div class="action-card yellow" onclick="window.location.href='unirse-sala.html'" data-aos="fade-left">
-                <i class="bi bi-box-arrow-in-right action-icon"></i>
-                <h3 class="action-title">Unirme a Sala</h3>
-                <p class="action-description">Únete con un código de sala</p>
-            </div>
-
-            <!-- Crear Set de Estudio -->
-            <div class="action-card red" onclick="window.location.href='crear-trivia.html'" data-aos="fade-right" data-aos-delay="100">
-                <i class="bi bi-pencil-square action-icon"></i>
-                <h3 class="action-title">Crear Set de Estudio</h3>
-                <p class="action-description">Diseña tu propia trivia personalizada</p>
-            </div>
-
-            <!-- Mis Trivias -->
-            <div class="action-card green" onclick="window.location.href='mis-trivias.html'" data-aos="fade-left" data-aos-delay="100">
-                <i class="bi bi-collection-fill action-icon"></i>
-                <h3 class="action-title">Mis Trivias</h3>
-                <p class="action-description">Administra tus sets de estudio</p>
-            </div>
-        </div>
-
-        <!-- Sección adicional -->
-        <div class="text-center mb-3">
-            <button class="btn btn-azul btn-ripple" onclick="window.location.href='explorar-trivias.html'" style="max-width: 400px;">
-                <i class="bi bi-search me-2"></i>Explorar Trivias Públicas
+            <button class="btn btn-rojo btn-ripple" onclick="cerrarSesion()">
+                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
             </button>
         </div>
 
-        <div class="logout-section">
-            <button class="btn btn-rojo btn-ripple" onclick="logout()" style="max-width: 300px;">
-                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+        <!-- Grid de opciones principales -->
+        <div class="dashboard-grid">
+            <!-- Crear Sala -->
+            <div class="dashboard-card card-azul card-tilt" data-aos="fade-up" data-aos-delay="100" onclick="window.location.href='crear-sala.html'">
+                <i class="bi bi-door-open-fill card-icon"></i>
+                <h3 class="card-title">Crear Sala</h3>
+                <p class="card-description">Inicia una nueva partida de trivia</p>
+            </div>
+
+            <!-- Unirme a Sala -->
+            <div class="dashboard-card card-amarillo card-tilt" data-aos="fade-up" data-aos-delay="200" onclick="window.location.href='unirse-sala.html'">
+                <i class="bi bi-arrow-right-square-fill card-icon"></i>
+                <h3 class="card-title">Unirme a Sala</h3>
+                <p class="card-description">Únete con un código de sala</p>
+            </div>
+
+            <!-- Crear Set de Estudio -->
+            <div class="dashboard-card card-rojo card-tilt" data-aos="fade-up" data-aos-delay="300" onclick="window.location.href='crear-trivia.html'">
+                <i class="bi bi-pencil-square card-icon"></i>
+                <h3 class="card-title">Crear Set de Estudio</h3>
+                <p class="card-description">Diseña tu propia trivia personalizada</p>
+            </div>
+
+            <!-- Mis Trivias -->
+            <div class="dashboard-card card-verde card-tilt" data-aos="fade-up" data-aos-delay="400" onclick="window.location.href='mis-trivias.html'">
+                <i class="bi bi-folder-fill card-icon"></i>
+                <h3 class="card-title">Mis Trivias</h3>
+                <p class="card-description">Administra tus sets de estudio</p>
+            </div>
+        </div>
+
+        <!-- Botón Explorar Trivias Públicas -->
+        <div class="btn-explorar" data-aos="fade-up" data-aos-delay="500">
+            <button class="btn btn-azul btn-ripple" style="width: 100%;" onclick="window.location.href='explorar-trivias.html'">
+                <i class="bi bi-search me-2"></i>Explorar Trivias Públicas
             </button>
         </div>
     </div>
@@ -195,42 +258,24 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.0/dist/vanilla-tilt.min.js"></script>
 <script src="js/animations.js"></script>
 <script src="js/auth.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Verificar si hay usuario logueado
+        protegerPagina('login.html');
+
         const usuario = obtenerUsuario();
 
-        if (!usuario || !usuario.nickName) {
-            // Si no hay usuario, redirigir a login
-            window.location.href = 'login.html';
-        } else {
-            // Mostrar datos del usuario
+        if (usuario) {
             document.getElementById('userNickname').textContent = usuario.nickName;
+            document.getElementById('userNicknameInfo').textContent = usuario.nickName;
             document.getElementById('userEmail').textContent = usuario.email;
+        } else {
+            window.location.href = 'login.html';
         }
     });
-
-    // Función para cerrar sesión
-    async function logout() {
-        try {
-            await fetch('/SparkyTrivia/api/auth/logout', {
-                method: 'POST'
-            });
-        } catch (error) {
-            console.error('Error al cerrar sesión:', error);
-        }
-
-        // Limpiar localStorage
-        limpiarSesion();
-
-        // Redirigir a login
-        window.location.href = 'login.html';
-    }
 </script>
 </body>
 </html>
