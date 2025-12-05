@@ -19,7 +19,7 @@ import java.util.Map;
 @WebServlet(name = "CrearTriviaServlet", urlPatterns = {"/api/trivias/crear"})
 public class CrearTriviaServlet extends HttpServlet {
 
-    // Servicio para lógica de negocio
+    // Servicio para logica de negocio
     private TriviaService triviaService = new TriviaService();
 
     // Gson para JSON
@@ -38,19 +38,19 @@ public class CrearTriviaServlet extends HttpServlet {
         Map<String, Object> result = new HashMap<>();
 
         try {
-            //Verificar que el usuario esté logueado (tiene sesión activa)
+            //Verificar que el usuario este logueado (tiene sesion activa)
             HttpSession session = request.getSession(false); // false = no crear nueva
 
             if (session == null || session.getAttribute("usuarioId") == null) {
-                // Si no hay sesión, el usuario NO está logueado
+                // Si no hay sesion, el usuario NO esta logueado
                 result.put("success", false);
-                result.put("message", "Debes iniciar sesión para crear trivias");
+                result.put("message", "Debes iniciar sesion para crear trivias");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
                 response.getWriter().write(gson.toJson(result));
-                return; // Terminar aquí
+                return; // Terminar aqui
             }
 
-            // Obtener el ID del usuario desde la sesión
+            // Obtener el ID del usuario desde la sesion
             Integer usuarioId = (Integer) session.getAttribute("usuarioId");
 
             // Leer datos JSON del request
@@ -63,7 +63,7 @@ public class CrearTriviaServlet extends HttpServlet {
             String dificultad = (String) datos.get("dificultad");
             String fotoPortada = (String) datos.get("fotoPortada");
 
-            // Convertir tiempoEstimado de Double a Integer (Gson lee números como Double)
+            // Convertir tiempoEstimado de Double a Integer (Gson lee numeros como Double)
             Integer tiempoEstimado = null;
             if (datos.get("tiempoEstimado") != null) {
                 tiempoEstimado = ((Double) datos.get("tiempoEstimado")).intValue();
@@ -72,10 +72,10 @@ public class CrearTriviaServlet extends HttpServlet {
             // Obtener esPublico (Boolean)
             Boolean esPublico = (Boolean) datos.get("esPublico");
 
-            //Validar que el título sea obligatorio
+            //Validar que el titulo sea obligatorio
             if (titulo == null || titulo.trim().isEmpty()) {
                 result.put("success", false);
-                result.put("message", "El título es obligatorio");
+                result.put("message", "El titulo es obligatorio");
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400
                 response.getWriter().write(gson.toJson(result));
                 return;
@@ -85,13 +85,19 @@ public class CrearTriviaServlet extends HttpServlet {
             Trivia trivia = triviaService.crearTrivia(
                     titulo,
                     descripcion,
-                    usuarioId,        // El usuario logueado será el host
+                    usuarioId,        // El usuario logueado sera el host
                     categoria,
                     dificultad,
                     tiempoEstimado,
                     fotoPortada,
                     esPublico
             );
+
+            // ESTABLECER STATUS COMO ACTIVO
+            trivia.setStatus("activo");
+
+            // Actualizar en la base de datos
+            triviaService.actualizarTrivia(trivia);
 
             //Construir respuesta exitosa
             result.put("success", true);
@@ -106,11 +112,11 @@ public class CrearTriviaServlet extends HttpServlet {
                     "esPublico", trivia.getEsPublico()
             ));
 
-            // Código HTTP 201 (Created - Recurso creado)
+            // Codigo HTTP 201 (Created - Recurso creado)
             response.setStatus(HttpServletResponse.SC_CREATED);
 
         } catch (Exception e) {
-            // Si algo falló (ej: usuario no existe, error de BD)
+            // Si algo fallo (ej: usuario no existe, error de BD)
             result.put("success", false);
             result.put("message", e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST); // 400

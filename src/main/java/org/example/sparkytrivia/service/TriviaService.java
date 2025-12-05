@@ -130,6 +130,9 @@ public class TriviaService {
         triviaDAO.eliminar(triviaId);
     }
 
+    public void actualizarTrivia(Trivia trivia) {
+        triviaDAO.actualizar(trivia);
+    }
 
 
 }

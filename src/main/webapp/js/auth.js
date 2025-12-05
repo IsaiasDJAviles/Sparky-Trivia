@@ -1,7 +1,7 @@
- /**
- * Esta parte maneja toda la autenticacion de las sesiones de usaurios 
+/**
+ * Esta parte maneja toda la autenticacion de las sesiones de usaurios
  *
-* */
+ * */
 
 
 

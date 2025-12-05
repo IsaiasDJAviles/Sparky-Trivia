@@ -283,11 +283,11 @@ function confettiFireworks() {
 function initTypedText(elementId, strings) {
     // Verificar que Typed.js esté cargado
     if (typeof Typed === 'undefined') {
-        console.warn('⚠️ Typed.js no está cargado');
+        console.warn('Typed.js no está cargado');
         return null;
     }
 
-    console.log(`⌨️ Iniciando texto animado en #${elementId}`);
+    console.log(`⌨Iniciando texto animado en #${elementId}`);
 
     // Crear instancia de Typed
     const typed = new Typed(`#${elementId}`, {
@@ -330,17 +330,17 @@ function sparkyTypedWelcome() {
 function initTilt() {
     // Verificar que VanillaTilt esté cargado
     if (typeof VanillaTilt === 'undefined') {
-        console.warn('⚠️ Vanilla Tilt no está cargado');
+        console.warn('Vanilla Tilt no está cargado');
         return;
     }
 
-    console.log('🎴 Iniciando efectos Tilt 3D...');
+    console.log('Iniciando efectos Tilt 3D...');
 
-    // Seleccionar elementos con clase .card-tilt o .trivia-card
-    const tiltElements = document.querySelectorAll('.card-tilt, .trivia-card, .btn-tilt');
+    // Seleccionar elementos con clase .card-tilt o .trivia-card, excluyendo login y register cards
+    const tiltElements = document.querySelectorAll('.card-tilt:not(.login-card):not(.register-card), .trivia-card, .btn-tilt');
 
     if (tiltElements.length === 0) {
-        console.log('ℹ️ No se encontraron elementos para Tilt');
+        console.log('ℹNo se encontraron elementos para Tilt');
         return;
     }
 
@@ -354,7 +354,7 @@ function initTilt() {
         perspective: 1000,        // Perspectiva 3D
     });
 
-    console.log(`✅ Tilt aplicado a ${tiltElements.length} elemento(s)`);
+    console.log(`Tilt aplicado a ${tiltElements.length} elemento(s)`);
 }
 
 /**
@@ -384,11 +384,11 @@ function applyTilt(element) {
 function initAOS() {
     // Verificar que AOS esté cargado
     if (typeof AOS === 'undefined') {
-        console.warn('⚠️ AOS no está cargado');
+        console.warn('AOS no está cargado');
         return;
     }
 
-    console.log('📜 Iniciando animaciones al scroll (AOS)...');
+    console.log('Iniciando animaciones al scroll (AOS)...');
 
     // Inicializar AOS con configuración
     AOS.init({
@@ -400,7 +400,7 @@ function initAOS() {
         mirror: false,            // No animar al volver hacia arriba
     });
 
-    console.log('✅ AOS inicializado');
+    console.log('AOS inicializado');
 }
 
 /**
@@ -409,7 +409,7 @@ function initAOS() {
 function refreshAOS() {
     if (typeof AOS !== 'undefined') {
         AOS.refresh();
-        console.log('🔄 AOS refrescado');
+        console.log('AOS refrescado');
     }
 }
 
@@ -421,7 +421,7 @@ function refreshAOS() {
  * Inicializar efectos de hover y ripple en botones
  */
 function initHoverEffects() {
-    console.log('👆 Iniciando efectos hover...');
+    console.log('Iniciando efectos hover...');
 
     // Seleccionar todos los botones con clase .btn o .btn-ripple
     const buttons = document.querySelectorAll('.btn-ripple, .btn');
@@ -431,7 +431,7 @@ function initHoverEffects() {
         button.addEventListener('click', createRipple);
     });
 
-    console.log(`✅ Efectos hover aplicados a ${buttons.length} botón(es)`);
+    console.log(`Efectos hover aplicados a ${buttons.length} botón(es)`);
 }
 
 /**
@@ -481,17 +481,17 @@ function createRipple(event) {
 function initParticles() {
     // Verificar que particlesJS esté cargado
     if (typeof particlesJS === 'undefined') {
-        console.warn('⚠️ Particles.js no está cargado');
+        console.warn('Particles.js no está cargado');
         return;
     }
 
     // Verificar que exista el elemento en el HTML
     if (!document.getElementById('particles-js')) {
-        console.log('ℹ️ No se encontró #particles-js en esta página');
+        console.log('ℹNo se encontró #particles-js en esta página');
         return;
     }
 
-    console.log('✨ Iniciando partículas de fondo...');
+    console.log('Iniciando partículas de fondo...');
 
     // Configuración de las partículas
     particlesJS('particles-js', {
@@ -577,7 +577,7 @@ function initParticles() {
         retina_detect: true           // Soporte para pantallas retina
     });
 
-    console.log('✅ Partículas inicializadas');
+    console.log('Partículas inicializadas');
 }
 
 /* ==========================================
@@ -593,11 +593,11 @@ function initHeaderScroll() {
 
     // Si no hay header, salir
     if (!header) {
-        console.log('ℹ️ No se encontró .header en esta página');
+        console.log('ℹNo se encontró .header en esta página');
         return;
     }
 
-    console.log('📱 Iniciando efecto de scroll en header...');
+    console.log('Iniciando efecto de scroll en header...');
 
     // Listener de scroll
     window.addEventListener('scroll', function() {
@@ -609,7 +609,7 @@ function initHeaderScroll() {
         }
     });
 
-    console.log('✅ Efecto de header inicializado');
+    console.log('Efecto de header inicializado');
 }
 
 /* ==========================================
@@ -709,29 +709,5 @@ window.SparkyAnimations = {
     refreshAOS: refreshAOS
 };
 
-console.log('🎨 Objeto SparkyAnimations disponible globalmente');
-console.log('💡 Ejemplo de uso: SparkyAnimations.confetti()');
-
-/* ==========================================
-   FIN DE animations.js
-
-   FUNCIONES PRINCIPALES DISPONIBLES:
-
-   ✅ SparkyAnimations.sparkyHappy(elemento) - Sparky feliz + confetti
-   ✅ SparkyAnimations.sparkySad(elemento) - Sparky triste + shake
-   ✅ SparkyAnimations.sparkyThinking(elemento) - Sparky pensando
-   ✅ SparkyAnimations.confetti() - Lanzar confetti
-   ✅ SparkyAnimations.confettiExplosion() - Explosión de confetti
-   ✅ SparkyAnimations.typedText(id, textos) - Texto escribiéndose
-   ✅ SparkyAnimations.shake(elemento) - Sacudir elemento
-   ✅ SparkyAnimations.pulse(elemento) - Pulso en elemento
-
-   USO EN HTML:
-   <script src="js/animations.js"></script>
-
-   <script>
-   // Ejemplo al acertar respuesta
-   const sparky = document.getElementById('sparky');
-   SparkyAnimations.sparkyHappy(sparky);
-   </script>
-   ========================================== */
+console.log('Objeto SparkyAnimations disponible globalmente');
+console.log('Ejemplo de uso: SparkyAnimations.confetti()');

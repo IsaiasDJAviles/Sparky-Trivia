@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Sala - Sparky Trivia</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .sala-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .sala-card {
+            max-width: 700px;
+            width: 100%;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .form-group .form-input,
+        .form-group .form-select {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .form-group .icon-decorator {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gris);
+            font-size: 1.1rem;
+            pointer-events: none;
+            z-index: 2;
+            transition: color 0.3s;
+        }
+
+        .form-group .form-input:focus + .icon-decorator,
+        .form-group .form-select:focus + .icon-decorator {
+            color: var(--color-azul-claro);
+        }
+
+        .form-group .check-success {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-verde);
+            font-size: 1.2rem;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .form-group .check-success.show {
+            opacity: 1;
+        }
+
+        .form-select {
+            background-color: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e9ecef;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--color-azul-claro);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(94, 114, 228, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: var(--radius-md);
+            border: 2px solid #e9ecef;
+            transition: all var(--transition-normal);
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group:hover {
+            border-color: var(--color-azul-claro);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            user-select: none;
+            flex: 1;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, rgba(94, 114, 228, 0.1), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid var(--color-azul-claro);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+        }
+
+        .info-box i {
+            color: var(--color-azul-claro);
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: var(--color-gris);
+            font-size: 0.95rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--color-azul-claro);
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all var(--transition-fast);
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+            color: var(--color-morado);
+        }
+
+        .trivia-selector {
+            margin-bottom: 25px;
+        }
+
+        .trivia-option {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #e9ecef;
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .trivia-option:hover {
+            border-color: var(--color-azul-claro);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .trivia-option.selected {
+            border-color: var(--color-verde);
+            background: rgba(45, 206, 137, 0.1);
+        }
+
+        .trivia-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .trivia-info {
+            flex: 1;
+        }
+
+        .trivia-info h5 {
+            margin: 0 0 5px 0;
+            color: var(--color-negro);
+            font-weight: 600;
+        }
+
+        .trivia-info small {
+            color: var(--color-gris);
+        }
+
+        @media (max-width: 576px) {
+            .two-col-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<header class="header">
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href='dashboard.html'">
+            <img src="images/sparky_logo.png" alt="Sparky">
+            <h1>Sparky Trivia</h1>
+        </div>
+    </div>
+</header>
+
+<div class="sala-container">
+    <div class="sala-card card" data-aos="fade-up">
+        <a href="dashboard.html" class="back-link">
+            <i class="bi bi-arrow-left-circle"></i> Volver al Dashboard
+        </a>
+
+        <div class="sparky-container" data-aos="zoom-in">
+            <img src="images/sparky_escribiendo.png" alt="Sparky" id="sparky">
+        </div>
+
+        <h2 class="card-title text-gradient">Crear Sala de Juego</h2>
+        <p class="text-center text-muted mb-4">Configura tu sala y comparte el codigo con tus amigos</p>
+
+        <div class="info-box">
+            <i class="bi bi-info-circle-fill"></i>
+            <p><strong>Codigo de sala:</strong> Se generara automaticamente al crear la sala</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="salaForm">
+            <!-- Nombre de la Sala -->
+            <div class="form-group">
+                <label for="nombreSala" class="form-label">
+                    <i class="bi bi-door-open-fill"></i> Nombre de la Sala *
+                </label>
+                <input
+                        type="text"
+                        class="form-input"
+                        id="nombreSala"
+                        placeholder="Ej: Sala de Estudio - Historia"
+                        required
+                        minlength="3"
+                        maxlength="255"
+                >
+                <i class="bi bi-door-open-fill icon-decorator"></i>
+                <i class="bi bi-check-circle-fill check-success" id="nombreCheck"></i>
+                <span class="error-message d-none" id="nombreError"></span>
+            </div>
+
+            <!-- Seleccionar Trivia -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="bi bi-collection-fill"></i> Selecciona una Trivia *
+                </label>
+                <div id="triviasList" class="trivia-selector">
+                    <div class="text-center text-muted py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando tus trivias...</p>
+                    </div>
+                </div>
+                <span class="error-message d-none" id="triviaError"></span>
+            </div>
+
+            <!-- Maximo de Jugadores -->
+            <div class="form-group">
+                <label for="maxUsuarios" class="form-label">
+                    <i class="bi bi-people-fill"></i> Maximo de Jugadores
+                </label>
+                <input
+                        type="number"
+                        class="form-input"
+                        id="maxUsuarios"
+                        placeholder="50"
+                        min="2"
+                        max="100"
+                        value="50"
+                >
+                <i class="bi bi-people-fill icon-decorator"></i>
+            </div>
+
+            <!-- Opciones de Configuracion -->
+            <div class="form-group">
+                <label class="form-label mb-2">
+                    <i class="bi bi-gear-fill"></i> Configuracion de la Sala
+                </label>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="esPublico" checked>
+                    <label for="esPublico">
+                        <i class="bi bi-globe"></i> <strong>Sala Publica</strong>
+                        <br><small class="text-muted">Cualquier usuario podra unirse con el codigo</small>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="unirseDespues">
+                    <label for="unirseDespues">
+                        <i class="bi bi-clock-history"></i> <strong>Permitir unirse despues de iniciar</strong>
+                        <br><small class="text-muted">Los jugadores podran entrar aunque la partida haya comenzado</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="two-col-grid">
+                <button type="button" class="btn btn-azul btn-ripple" onclick="window.location.href='dashboard.html'">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                </button>
+                <button type="submit" class="btn btn-verde btn-ripple" id="btnCrear">
+                    <i class="bi bi-check-circle-fill me-2"></i>Crear Sala
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2025 Sparky Trivia | Renata Castro & Isaias Aviles</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    let triviaSeleccionada = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Proteger pagina
+        protegerPagina('login.html');
+
+        // Inicializar AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        // Inicializar particles.js
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80 },
+                    color: { value: '#ffffff' },
+                    opacity: { value: 0.5 },
+                    size: { value: 3 },
+                    move: { enable: true, speed: 2 }
+                }
+            });
+        }
+
+        const form = document.getElementById('salaForm');
+        const nombreInput = document.getElementById('nombreSala');
+        const btn = document.getElementById('btnCrear');
+        const sparky = document.getElementById('sparky');
+
+        // Cargar trivias del usuario
+        cargarTrivias();
+
+        // Validacion del nombre en tiempo real
+        nombreInput.addEventListener('blur', function() {
+            const nombre = this.value.trim();
+            if (nombre && nombre.length >= 3) {
+                this.classList.remove('error');
+                ocultarError(document.getElementById('nombreError'));
+                document.getElementById('nombreCheck').classList.add('show');
+            } else if (nombre) {
+                mostrarError(document.getElementById('nombreError'), 'Minimo 3 caracteres');
+                this.classList.add('error');
+                document.getElementById('nombreCheck').classList.remove('show');
+            }
+        });
+
+        // Animacion de Sparky
+        if (typeof SparkyAnimations !== 'undefined') {
+            SparkyAnimations.sparkyThinking(sparky);
+        }
+
+        // Submit del formulario
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nombreSala = nombreInput.value.trim();
+            const maxUsuarios = parseInt(document.getElementById('maxUsuarios').value) || 50;
+            const esPublico = document.getElementById('esPublico').checked;
+            const unirseDespues = document.getElementById('unirseDespues').checked;
+
+            let errors = false;
+
+            // Validar nombre
+            if (!nombreSala || nombreSala.length < 3) {
+                mostrarError(document.getElementById('nombreError'), 'El nombre es obligatorio (min. 3 caracteres)');
+                nombreInput.classList.add('error');
+                errors = true;
+            }
+
+            // Validar que se haya seleccionado una trivia
+            if (!triviaSeleccionada) {
+                mostrarError(document.getElementById('triviaError'), 'Debes seleccionar una trivia');
+                errors = true;
+            }
+
+            if (errors) {
+                if (typeof SparkyAnimations !== 'undefined') {
+                    SparkyAnimations.sparkySad(sparky);
+                }
+                return;
+            }
+
+            // Construir objeto de datos
+            const data = {
+                nombreSala: nombreSala,
+                triviaId: triviaSeleccionada,
+                maxUsuarios: maxUsuarios,
+                esPublico: esPublico,
+                unirseDespues: unirseDespues
+            };
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando...';
+
+            try {
+                const response = await postRequest('/SparkyTrivia/api/salas/crear', data);
+
+                if (response.success && response.sala) {
+                    mostrarAlerta('Sala creada exitosamente!', 'success');
+
+                    if (typeof SparkyAnimations !== 'undefined') {
+                        SparkyAnimations.sparkyHappy(sparky);
+                        SparkyAnimations.confetti();
+                    }
+
+                    // Redirigir al lobby con el codigo de sala
+                    setTimeout(() => {
+                        window.location.href = `lobby.html?codigo=${response.sala.codigoSala}`;
+                    }, 2000);
+                } else {
+                    throw new Error(response.message || 'Error al crear la sala');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarAlerta(error.message || 'Error de conexion con el servidor', 'danger');
+
+                if (typeof SparkyAnimations !== 'undefined') {
+                    SparkyAnimations.sparkySad(sparky);
+                }
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Crear Sala';
+            }
+        });
+    });
+
+    async function cargarTrivias() {
+        const triviasList = document.getElementById('triviasList');
+
+        try {
+            const usuario = obtenerUsuario();
+            if (!usuario || !usuario.usuarioId) {
+                throw new Error('Usuario no autenticado');
+            }
+
+            console.log('Cargando trivias del usuario:', usuario.usuarioId);
+
+            // USAR EL MISMO ENDPOINT QUE MIS-TRIVIAS.HTML
+            const response = await fetch('/SparkyTrivia/api/trivias/listar?mias=true', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            console.log('Respuesta de trivias:', data);
+
+            if (data.success && data.trivias && data.trivias.length > 0) {
+                // FILTRAR SOLO TRIVIAS CON PREGUNTAS
+                const triviasConPreguntas = data.trivias.filter(t => t.preguntasTotales > 0);
+
+                if (triviasConPreguntas.length > 0) {
+                    mostrarTrivias(triviasConPreguntas);
+                } else {
+                    mostrarSinPreguntasEnTrivias();
+                }
+            } else {
+                mostrarSinTrivias();
+            }
+        } catch (error) {
+            console.error('Error al cargar trivias:', error);
+            triviasList.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Error al cargar las trivias. Por favor, intenta nuevamente.
+            </div>
+        `;
+        }
+    }
+
+    function mostrarSinPreguntasEnTrivias() {
+        const triviasList = document.getElementById('triviasList');
+        triviasList.innerHTML = `
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            Tus trivias no tienen preguntas todavia.
+            <a href="mis-trivias.html" class="alert-link">Ve a Mis Trivias</a>
+            y agrega preguntas antes de crear una sala.
+        </div>
+    `;
+    }
+
+    function mostrarTrivias(trivias) {
+        const triviasList = document.getElementById('triviasList');
+
+        triviasList.innerHTML = trivias.map(trivia => `
+            <div class="trivia-option" onclick="seleccionarTrivia(${trivia.triviaId}, this)">
+                <input type="radio" name="trivia" value="${trivia.triviaId}" id="trivia-${trivia.triviaId}">
+                <div class="trivia-info">
+                    <h5>${escaparHTML(trivia.titulo)}</h5>
+                    <small>
+                        <i class="bi bi-bookmark-fill"></i> ${trivia.categoria || 'General'} | 
+                        <i class="bi bi-speedometer2"></i> ${trivia.dificultad || 'Medio'} | 
+                        <i class="bi bi-question-circle"></i> ${trivia.numPreguntas || 0} preguntas
+                    </small>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function mostrarSinTrivias() {
+        const triviasList = document.getElementById('triviasList');
+        triviasList.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                No tienes trivias creadas. 
+                <a href="crear-trivia.html" class="alert-link">Crea tu primera trivia aqui</a>
+            </div>
+        `;
+    }
+
+    function seleccionarTrivia(triviaId, elemento) {
+        // Remover seleccion anterior
+        document.querySelectorAll('.trivia-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+
+        // Marcar como seleccionada
+        elemento.classList.add('selected');
+        document.getElementById(`trivia-${triviaId}`).checked = true;
+
+        triviaSeleccionada = triviaId;
+        ocultarError(document.getElementById('triviaError'));
+
+        console.log('Trivia seleccionada:', triviaId);
+    }
+
+    function escaparHTML(texto) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return texto.replace(/[&<>"']/g, m => map[m]);
+    }
+</script>
+</body>
+</html>
