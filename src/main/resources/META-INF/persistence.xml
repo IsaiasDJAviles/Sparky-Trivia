@@ -13,7 +13,9 @@
         <class>org.example.sparkytrivia.model.Trivia</class>
         <class>org.example.sparkytrivia.model.Preguntas</class>
         <class>org.example.sparkytrivia.model.OpcionesRespuesta</class>
-
+        <class>org.example.sparkytrivia.model.Sala</class>
+        <class>org.example.sparkytrivia.model.Participantes</class>
+        <class>org.example.sparkytrivia.model.RespuestasJugador</class>
 
         <!-- Excluir escaneo automático -->
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
@@ -30,8 +32,6 @@
             <property name="hibernate.hbm2ddl.auto" value="none"/>
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
-
-            <!-- Logging adicional para debugging -->
             <property name="hibernate.use_sql_comments" value="true"/>
         </properties>
     </persistence-unit>

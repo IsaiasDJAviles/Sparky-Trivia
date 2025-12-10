@@ -35,7 +35,21 @@
             <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Jakarta WebSocket API -->
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-api</artifactId>
+            <version>2.1.0</version>
+            <scope>provided</scope>
+        </dependency>
 
+        <!-- Jakarta WebSocket Client API (para testing) -->
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-client-api</artifactId>
+            <version>2.1.0</version>
+            <scope>provided</scope>
+        </dependency>
         <!-- Jakarta Persistence (JPA) -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
