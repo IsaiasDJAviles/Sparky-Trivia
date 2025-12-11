@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jugando - Sparky Trivia</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* COUNTDOWN INICIAL */
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .countdown-numero {
+            font-size: 15rem;
+            font-weight: 900;
+            color: white;
+            animation: countdownPulse 1s ease;
+        }
+
+        @keyframes countdownPulse {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* AREA PRINCIPAL - PREGUNTA */
+        .pregunta-area {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        .pregunta-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: var(--radius-lg, 15px);
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .timer-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .timer-progress {
+            height: 100%;
+            transition: width 1s linear;
+            border-radius: 10px;
+        }
+
+        .pregunta-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .pregunta-numero {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #5e72e4;
+        }
+
+        .pregunta-puntos {
+            background: linear-gradient(135deg, #f5365c, #f56036);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .pregunta-contenido {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #32325d;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            min-height: 80px;
+        }
+
+        .pregunta-imagen {
+            max-height: 300px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .pregunta-imagen img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* OPCIONES DE RESPUESTA */
+        .opciones-container {
+            display: grid;
+            gap: 15px;
+            min-height: 200px;
+        }
+
+        .opcion-btn {
+            background: white;
+            border: 3px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.1rem;
+        }
+
+        .opcion-btn:hover:not(:disabled) {
+            border-color: #5e72e4;
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .opcion-letra {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5e72e4, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .opcion-texto {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .opcion-btn.seleccionada {
+            border-color: #5e72e4;
+            background: rgba(94, 114, 228, 0.1);
+        }
+
+        .opcion-btn.correcta {
+            border-color: #2dce89;
+            background: rgba(45, 206, 137, 0.1);
+            animation: correctaPulse 0.5s ease;
+        }
+
+        .opcion-btn.correcta .opcion-letra {
+            background: linear-gradient(135deg, #2dce89, #11cdef);
+        }
+
+        .opcion-btn.incorrecta {
+            border-color: #f5365c;
+            background: rgba(245, 54, 92, 0.1);
+            animation: shake 0.5s ease;
+        }
+
+        .opcion-btn.incorrecta .opcion-letra {
+            background: linear-gradient(135deg, #f5365c, #f56036);
+        }
+
+        .opcion-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        /* SIDEBAR - RANKING EN VIVO */
+        .ranking-sidebar {
+            width: 350px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .ranking-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .ranking-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .ranking-header h4 {
+            margin: 0;
+            font-weight: 700;
+            color: #5e72e4;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        /* ANIMACION DE MOVIMIENTO */
+        .ranking-item.moving {
+            animation: moveUp 0.5s ease;
+        }
+
+        @keyframes moveUp {
+            0% { transform: translateY(20px); opacity: 0.5; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .ranking-item.top-1 {
+            border-color: #FFD700;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+        }
+
+        .ranking-item.top-2 {
+            border-color: #C0C0C0;
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(192, 192, 192, 0.05));
+        }
+
+        .ranking-item.top-3 {
+            border-color: #CD7F32;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.1), rgba(205, 127, 50, 0.05));
+        }
+
+        .ranking-pos {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5e72e4, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .ranking-item.top-1 .ranking-pos {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+        }
+
+        .ranking-item.top-2 .ranking-pos {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+        }
+
+        .ranking-item.top-3 .ranking-pos {
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-nick {
+            font-weight: 700;
+            color: #32325d;
+            margin-bottom: 3px;
+        }
+
+        .ranking-stats {
+            font-size: 0.85rem;
+            color: #8898aa;
+        }
+
+        .ranking-pts {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #5e72e4;
+        }
+
+        /* ESTADO DE CONEXION */
+        .conexion-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .status-online {
+            background: linear-gradient(135deg, #2dce89, #11cdef);
+            color: white;
+        }
+
+        .status-offline {
+            background: linear-gradient(135deg, #f5365c, #f56036);
+            color: white;
+        }
+
+        /* ANIMACIONES */
+        @keyframes correctaPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .game-container {
+                flex-direction: column;
+            }
+
+            .ranking-sidebar {
+                width: 100%;
+                position: relative;
+                order: -1;
+            }
+
+            .pregunta-area {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .countdown-numero {
+                font-size: 10rem;
+            }
+
+            .pregunta-contenido {
+                font-size: 1.3rem;
+            }
+
+            .opcion-btn {
+                padding: 15px;
+                font-size: 1rem;
+            }
+
+            .opcion-letra {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="particles-js"></div>
+
+<!-- Countdown Inicial -->
+<div class="countdown-overlay" id="countdownOverlay">
+    <div class="countdown-numero" id="countdownNumero">3</div>
+</div>
+
+<!-- Estado de Conexion -->
+<div class="conexion-status status-offline" id="conexionStatus">
+    <i class="bi bi-wifi-off"></i>
+    <span>Conectando...</span>
+</div>
+
+<div class="game-container" id="gameContainer" style="display: none;">
+    <!-- AREA PRINCIPAL - PREGUNTA -->
+    <div class="pregunta-area">
+        <!-- Timer Bar -->
+        <div class="timer-bar">
+            <div class="timer-progress bg-success" id="timerProgress" style="width: 100%;"></div>
+        </div>
+
+        <!-- Card de Pregunta -->
+        <div class="pregunta-card">
+            <div class="pregunta-header">
+                <div>
+                    <div class="pregunta-numero" id="numeroPregunta">Cargando...</div>
+                    <div class="mt-2">
+                        <i class="bi bi-clock-fill text-primary me-2"></i>
+                        <span id="timerText" style="font-weight: 700; font-size: 1.2rem;">-</span>
+                    </div>
+                </div>
+                <div class="pregunta-puntos">
+                    <i class="bi bi-star-fill me-2"></i><span id="puntosPreg">-</span> pts
+                </div>
+            </div>
+
+            <div class="pregunta-contenido" id="contenidoPregunta"></div>
+
+            <div class="pregunta-imagen d-none" id="imagenPregunta"></div>
+
+            <div class="opciones-container" id="opcionesContainer"></div>
+        </div>
+
+        <!-- Explicacion (se muestra despues de responder) -->
+        <div class="pregunta-card d-none" id="explicacionCard">
+            <h5><i class="bi bi-lightbulb-fill text-warning me-2"></i>Explicación</h5>
+            <p id="explicacionTexto"></p>
+        </div>
+    </div>
+
+    <!-- SIDEBAR - RANKING EN VIVO -->
+    <div class="ranking-sidebar">
+        <div class="ranking-card">
+            <div class="ranking-header">
+                <i class="bi bi-trophy-fill" style="font-size: 1.5rem; color: #FFD700;"></i>
+                <h4>Ranking en Vivo</h4>
+            </div>
+
+            <div id="rankingLive">
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p class="mb-0 mt-2">Esperando inicio...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/auth.js"></script>
+
+<script>
+    // Variables globales
+    let websocket = null;
+    let codigoSala = null;
+    let usuario = null;
+    let participanteId = null;
+    let preguntaActual = null;
+    let tiempoInicio = null;
+    let timerInterval = null;
+    let puedeResponder = false;
+    let opcionSeleccionadaId = null;
+    let yaRespondio = false;
+    let rankingActual = []; // Para controlar el orden del ranking
+
+    document.addEventListener('DOMContentLoaded', function() {
+        protegerPagina('login.html');
+        usuario = obtenerUsuario();
+
+        // Obtener parametros
+        const params = new URLSearchParams(window.location.search);
+        codigoSala = params.get('codigo');
+        participanteId = parseInt(params.get('participante')) || null;
+
+        if (!codigoSala) {
+            alert('Código de sala no especificado');
+            window.location.href = 'dashboard.html';
+            return;
+        }
+
+        // Inicializar particles
+        if (typeof particlesJS !== 'undefined') {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 50 },
+                    color: { value: '#ffffff' },
+                    opacity: { value: 0.3 },
+                    size: { value: 3 },
+                    move: { enable: true, speed: 1 }
+                }
+            });
+        }
+
+        // Conectar WebSocket PRIMERO
+        conectarWebSocket();
+
+        // Mostrar countdown despues de conectar
+        setTimeout(() => {
+            mostrarCountdown();
+        }, 500);
+    });
+
+    function mostrarCountdown() {
+        let contador = 3;
+        const countdownNumero = document.getElementById('countdownNumero');
+
+        const interval = setInterval(() => {
+            contador--;
+
+            if (contador > 0) {
+                countdownNumero.textContent = contador;
+                countdownNumero.style.animation = 'none';
+                setTimeout(() => {
+                    countdownNumero.style.animation = 'countdownPulse 1s ease';
+                }, 10);
+            } else {
+                countdownNumero.textContent = 'INICIO';
+                countdownNumero.style.color = '#2dce89';
+
+                setTimeout(() => {
+                    document.getElementById('countdownOverlay').style.display = 'none';
+                    document.getElementById('gameContainer').style.display = 'flex';
+
+                    // Inicializar ranking con todos en 0 puntos
+                    inicializarRankingInicial();
+                }, 1000);
+
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+
+    function conectarWebSocket() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const host = window.location.host;
+        const wsUrl = `${protocol}//${host}/SparkyTrivia/game/${codigoSala}`;
+
+        console.log('Conectando WebSocket:', wsUrl);
+
+        websocket = new WebSocket(wsUrl);
+
+        websocket.onopen = function() {
+            console.log('WebSocket conectado');
+            actualizarEstadoConexion(true);
+
+            enviarMensaje({
+                tipo: 'UNIRSE',
+                usuarioId: usuario.usuarioId,
+                nickname: usuario.nickName
+            });
+        };
+
+        websocket.onmessage = function(event) {
+            const mensaje = JSON.parse(event.data);
+            console.log('Mensaje recibido:', mensaje.tipo);
+
+            switch(mensaje.tipo) {
+                case 'PREGUNTA':
+                    manejarNuevaPregunta(mensaje);
+                    break;
+                case 'RESPUESTA_CORRECTA':
+                    manejarRespuestaCorrecta(mensaje);
+                    break;
+                case 'RANKING':
+                    actualizarRanking(mensaje.ranking);
+                    break;
+                case 'JUEGO_FINALIZADO':
+                    manejarFinJuego(mensaje);
+                    break;
+            }
+        };
+
+        websocket.onerror = function(error) {
+            console.error('Error WebSocket:', error);
+            actualizarEstadoConexion(false);
+        };
+
+        websocket.onclose = function() {
+            console.log('WebSocket cerrado');
+            actualizarEstadoConexion(false);
+        };
+    }
+
+    async function inicializarRankingInicial() {
+        try {
+            const response = await fetch(`/SparkyTrivia/api/salas/detalle?codigo=${codigoSala}`, {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.sala && data.sala.participantes) {
+                const rankingInicial = data.sala.participantes.map((p, index) => ({
+                    posicion: index + 1,
+                    nickname: p.nickname,
+                    puntaje: 0,
+                    correctas: 0,
+                    respondidas: 0
+                }));
+
+                actualizarRanking(rankingInicial);
+                console.log('Ranking inicial cargado:', rankingInicial);
+            }
+        } catch (error) {
+            console.error('Error cargando participantes iniciales:', error);
+        }
+    }
+
+    function manejarNuevaPregunta(mensaje) {
+        console.log('Nueva pregunta');
+
+        preguntaActual = mensaje.pregunta;
+        puedeResponder = true;
+        yaRespondio = false;
+        opcionSeleccionadaId = null;
+        tiempoInicio = Date.now();
+
+        // Ocultar explicacion anterior
+        document.getElementById('explicacionCard').classList.add('d-none');
+
+        // Actualizar numero
+        document.getElementById('numeroPregunta').textContent =
+            `Pregunta ${mensaje.numeroPregunta} de ${mensaje.totalPreguntas}`;
+
+        // Actualizar contenido
+        document.getElementById('contenidoPregunta').textContent = preguntaActual.contenido;
+        document.getElementById('puntosPreg').textContent = preguntaActual.puntos;
+
+        // Imagen
+        const imgContainer = document.getElementById('imagenPregunta');
+        if (preguntaActual.imagen) {
+            imgContainer.innerHTML = `<img src="${preguntaActual.imagen}" alt="Imagen">`;
+            imgContainer.classList.remove('d-none');
+        } else {
+            imgContainer.classList.add('d-none');
+        }
+
+        // Opciones
+        const opcionesContainer = document.getElementById('opcionesContainer');
+        opcionesContainer.innerHTML = '';
+
+        preguntaActual.opciones.forEach((opcion, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'opcion-btn';
+            btn.dataset.opcionId = opcion.opcionId;
+            btn.innerHTML = `
+                <div class="opcion-letra">${String.fromCharCode(65 + index)}</div>
+                <div class="opcion-texto">${opcion.textoOpcion}</div>
+            `;
+            btn.onclick = () => seleccionarOpcion(opcion.opcionId, btn);
+            opcionesContainer.appendChild(btn);
+        });
+
+        // Iniciar timer
+        iniciarTemporizador(preguntaActual.limiteTiempo);
+    }
+
+    function iniciarTemporizador(segundos) {
+        let tiempoRestante = segundos;
+        const progressBar = document.getElementById('timerProgress');
+        const timerText = document.getElementById('timerText');
+
+        clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            tiempoRestante--;
+            const porcentaje = (tiempoRestante / segundos) * 100;
+
+            progressBar.style.width = porcentaje + '%';
+            timerText.textContent = tiempoRestante + 's';
+
+            // Cambiar color
+            if (porcentaje > 50) {
+                progressBar.className = 'timer-progress bg-success';
+            } else if (porcentaje > 20) {
+                progressBar.className = 'timer-progress bg-warning';
+            } else {
+                progressBar.className = 'timer-progress bg-danger';
+            }
+
+            if (tiempoRestante <= 0) {
+                clearInterval(timerInterval);
+                if (!yaRespondio) {
+                    tiempoAgotado();
+                }
+            }
+        }, 1000);
+    }
+
+    function tiempoAgotado() {
+        puedeResponder = false;
+        document.querySelectorAll('.opcion-btn').forEach(btn => btn.disabled = true);
+        console.log('Tiempo agotado - esperando respuesta correcta del servidor');
+    }
+
+    function seleccionarOpcion(opcionId, btnElement) {
+        if (!puedeResponder || yaRespondio) return;
+
+        yaRespondio = true;
+        puedeResponder = false;
+        opcionSeleccionadaId = opcionId;
+
+        // ⭐ DETENER EL TIMER INMEDIATAMENTE
+        clearInterval(timerInterval);
+
+        const tiempoTomado = Math.floor((Date.now() - tiempoInicio) / 1000);
+
+        // Marcar seleccionada
+        document.querySelectorAll('.opcion-btn').forEach(btn => {
+            btn.disabled = true;
+            if (btn.dataset.opcionId == opcionId) {
+                btn.classList.add('seleccionada');
+            }
+        });
+
+        // Enviar respuesta
+        enviarMensaje({
+            tipo: 'RESPUESTA',
+            participanteId: participanteId,
+            preguntaId: preguntaActual.preguntaId,
+            opcionId: opcionId,
+            tiempoTomado: tiempoTomado
+        });
+
+        console.log('Respuesta enviada - Esperando confirmación del servidor');
+    }
+
+    function manejarRespuestaCorrecta(mensaje) {
+        const opcionCorrectaId = mensaje.opcionCorrectaId;
+
+        // Marcar correcta/incorrecta
+        document.querySelectorAll('.opcion-btn').forEach(btn => {
+            const btnOpcionId = parseInt(btn.dataset.opcionId);
+
+            if (btnOpcionId === opcionCorrectaId) {
+                btn.classList.add('correcta');
+
+                // Si acerté, confetti
+                if (btnOpcionId === opcionSeleccionadaId && typeof confetti !== 'undefined') {
+                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                }
+            } else if (btnOpcionId === opcionSeleccionadaId) {
+                btn.classList.add('incorrecta');
+            }
+        });
+
+        // Mostrar explicacion
+        if (mensaje.explicacion) {
+            document.getElementById('explicacionTexto').textContent = mensaje.explicacion;
+            document.getElementById('explicacionCard').classList.remove('d-none');
+        }
+    }
+
+    function actualizarRanking(ranking) {
+        const container = document.getElementById('rankingLive');
+
+        if (!ranking || ranking.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-3">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p class="mb-0 mt-2">Esperando jugadores...</p>
+                </div>
+            `;
+            return;
+        }
+
+        // ⭐ ORDENAR POR PUNTAJE DESCENDENTE
+        const rankingOrdenado = [...ranking].sort((a, b) => b.puntaje - a.puntaje);
+
+        // Detectar cambios de posición para animaciones
+        const posicionesAnteriores = new Map();
+        rankingActual.forEach((j, idx) => {
+            posicionesAnteriores.set(j.nickname, idx);
+        });
+
+        // Actualizar ranking actual
+        rankingActual = rankingOrdenado;
+
+        // Renderizar
+        container.innerHTML = rankingOrdenado.slice(0, 5).map((jugador, index) => {
+            let claseTop = '';
+            if (index === 0) claseTop = 'top-1';
+            else if (index === 1) claseTop = 'top-2';
+            else if (index === 2) claseTop = 'top-3';
+
+            // Detectar si cambió de posición
+            const posAnterior = posicionesAnteriores.get(jugador.nickname);
+            const cambio = posAnterior !== undefined && posAnterior !== index;
+
+            return `
+                <div class="ranking-item ${claseTop} ${cambio ? 'moving' : ''}" data-nickname="${jugador.nickname}">
+                    <div class="ranking-pos">${index + 1}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-nick">${jugador.nickname}</div>
+                        <div class="ranking-stats">
+                            ${jugador.correctas}/${jugador.respondidas} correctas
+                        </div>
+                    </div>
+                    <div class="ranking-pts">${jugador.puntaje}</div>
+                </div>
+            `;
+        }).join('');
+
+        // Remover clase de animación después de que termine
+        setTimeout(() => {
+            document.querySelectorAll('.ranking-item.moving').forEach(item => {
+                item.classList.remove('moving');
+            });
+        }, 500);
+    }
+
+    function manejarFinJuego(mensaje) {
+        console.log('Juego finalizado');
+        clearInterval(timerInterval);
+
+        // Guardar ranking en localStorage
+        localStorage.setItem('rankingFinal_' + codigoSala, JSON.stringify(mensaje.rankingFinal));
+
+        // Redirigir a resultados
+        setTimeout(() => {
+            window.location.href = `resultados.html?codigo=${codigoSala}`;
+        }, 3000);
+    }
+
+    function enviarMensaje(mensaje) {
+        if (websocket && websocket.readyState === WebSocket.OPEN) {
+            websocket.send(JSON.stringify(mensaje));
+        }
+    }
+
+    function actualizarEstadoConexion(conectado) {
+        const status = document.getElementById('conexionStatus');
+        if (conectado) {
+            status.className = 'conexion-status status-online';
+            status.innerHTML = '<i class="bi bi-wifi"></i> <span>Conectado</span>';
+        } else {
+            status.className = 'conexion-status status-offline';
+            status.innerHTML = '<i class="bi bi-wifi-off"></i> <span>Desconectado</span>';
+        }
+    }
+
+    window.addEventListener('beforeunload', function() {
+        if (websocket) websocket.close();
+        clearInterval(timerInterval);
+    });
+</script>
+</body>
+</html>
