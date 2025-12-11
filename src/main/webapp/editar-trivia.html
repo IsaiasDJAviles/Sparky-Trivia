@@ -132,6 +132,31 @@
         @media (max-width: 576px) {
             .two-col-grid { grid-template-columns: 1fr; }
         }
+        /* Desactivar VanillaTilt en trivia-card */
+        .trivia-container .trivia-card {
+            transform: none !important;
+            transform-style: flat !important;
+            will-change: auto !important;
+        }
+
+        .trivia-container .trivia-card:hover {
+            transform: translateY(-5px) !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .trivia-container .trivia-card * {
+            transform: none !important;
+            backface-visibility: visible !important;
+        }
+
+        .trivia-container .trivia-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        }
+
+        /* Alternativa más agresiva */
+        .trivia-card[data-tilt] {
+            transform: none !important;
+        }
     </style>
 </head>
 <body>
@@ -147,7 +172,7 @@
 </header>
 
 <div class="trivia-container">
-    <div class="trivia-card card card-tilt" data-aos="fade-up">
+    <div class="trivia-card card" data-aos="fade-up">
         <a href="mis-trivias.html" class="back-link">
             <i class="bi bi-arrow-left-circle"></i> Volver a Mis Trivias
         </a>

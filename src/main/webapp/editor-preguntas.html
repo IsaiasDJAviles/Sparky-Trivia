@@ -197,7 +197,7 @@
 <!-- Contenido Principal -->
 <div class="main-content">
     <!-- Información de la Trivia -->
-    <div class="trivia-info" data-aos="fade-down">
+    <div class="trivia-info" >
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h2 id="triviaTitulo">Cargando...</h2>
@@ -498,7 +498,7 @@
         });
 
         return `
-                <div class="pregunta-card" data-pregunta-id="${pregunta.preguntaId}" data-aos="fade-up" data-aos-delay="${index * 100}">
+                <div class="pregunta-card" data-pregunta-id="${pregunta.preguntaId}"  data-aos-delay="${index * 100}">
                     <div class="pregunta-header">
                         <div class="d-flex align-items-center gap-3">
                             <div class="pregunta-numero">${pregunta.orderPregunta}</div>

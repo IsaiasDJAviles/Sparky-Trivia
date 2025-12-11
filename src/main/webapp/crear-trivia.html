@@ -13,7 +13,13 @@
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
-        .trivia-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+        .trivia-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
         .trivia-card { max-width: 650px; width: 100%; animation: fadeInDown 0.6s ease; }
 
         /* Estructura del input con icono */
@@ -160,7 +166,7 @@
 </header>
 
 <div class="trivia-container">
-    <div class="trivia-card card" data-aos="fade-up">
+    <div class="trivia-card card" data-aos="fade-up" id="triviaCardMain">
         <a href="dashboard.html" class="back-link">
             <i class="bi bi-arrow-left-circle"></i> Volver al Dashboard
         </a>
@@ -308,12 +314,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.0/dist/vanilla-tilt.min.js"></script>
 <script src="js/animations.js"></script>
 <script src="js/auth.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // CRÍTICO: Desactivar VanillaTilt en este card específico
+        const triviaCard = document.getElementById('triviaCardMain');
+        if (triviaCard && triviaCard.vanillaTilt) {
+            triviaCard.vanillaTilt.destroy();
+            console.log('✓ VanillaTilt desactivado en crear-trivia');
+        }
+
         // Proteger página - solo usuarios logueados
         protegerPagina('login.html');
 
@@ -377,7 +389,7 @@
                 const response = await postRequest('/SparkyTrivia/api/trivias/crear', data);
 
                 if (response.success) {
-                    mostrarAlerta('¡Trivia creada exitosamente! 🎉', 'success');
+                    mostrarAlerta('¡Trivia creada exitosamente!', 'success');
                     SparkyAnimations.sparkyHappy(sparky);
                     SparkyAnimations.confettiExplosion();
 
@@ -399,6 +411,20 @@
                 btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Crear Trivia';
             }
         });
+
+        // EXTRA: Forzar reseteo de transform cada 100ms durante el primer segundo
+        let resetCount = 0;
+        const resetInterval = setInterval(() => {
+            if (triviaCard) {
+                triviaCard.style.transform = 'none';
+                triviaCard.style.transformStyle = 'flat';
+            }
+            resetCount++;
+            if (resetCount >= 10) {
+                clearInterval(resetInterval);
+                console.log('Reseteo de transform completado');
+            }
+        }, 100);
     });
 </script>
 </body>

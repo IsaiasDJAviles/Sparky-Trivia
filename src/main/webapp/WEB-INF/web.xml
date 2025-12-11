@@ -7,8 +7,9 @@
 
     <display-name>Sparky Trivia</display-name>
 
+    <!-- IMPORTANTE: welcome.html es ahora la página de inicio -->
     <welcome-file-list>
-        <welcome-file>login.jsp</welcome-file>
+        <welcome-file>welcome.html</welcome-file>
         <welcome-file>login.html</welcome-file>
     </welcome-file-list>
 

@@ -3,8 +3,6 @@
  *
  * */
 
-
-
 // URL base del backend
 const API_BASE_URL = '/SparkyTrivia/api';
 
@@ -91,11 +89,11 @@ function haySesionActiva() {
    accedan a páginas protegidas
    si no hay sesion redirige al login*/
 
-function protegerPagina(redirectUrl = 'login.html') {
+function protegerPagina(redirectUrl = 'welcome.html') {
     // Verificar si hay sesión activa
     if (!haySesionActiva()) {
-        console.log('No hay sesión activa. Redirigiendo a login...');
-        // Redirigir al login
+        console.log('No hay sesión activa. Redirigiendo a welcome...');
+        // Redirigir a la página de bienvenida
         window.location.href = redirectUrl;
     }
 }
@@ -181,8 +179,8 @@ async function cerrarSesion() {
 
         console.log('Sesión cerrada exitosamente');
 
-        // Redirigir al login
-        window.location.href = 'login.html';
+        // Redirigir a la página de bienvenida
+        window.location.href = 'welcome.html';
 
         return true;
     } catch (error) {
@@ -191,8 +189,8 @@ async function cerrarSesion() {
         // Aunque haya error, limpiar datos locales de todas formas
         limpiarSesion();
 
-        // Redirigir al login de todas formas
-        window.location.href = 'login.html';
+        // Redirigir a la página de bienvenida de todas formas
+        window.location.href = 'welcome.html';
 
         return false;
     }
@@ -359,6 +357,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Obtener el nombre del archivo HTML actual
     const pagina = window.location.pathname.split('/').pop();
 
+    console.log('Página actual:', pagina);
+
+    // CRÍTICO: welcome.html e index.html NUNCA deben tener redirecciones automáticas
+    // Estas páginas manejan su propia lógica de UI según si hay sesión o no
+    const paginasExcluidas = ['welcome.html', 'index.html', ''];
+
+    if (paginasExcluidas.includes(pagina)) {
+        console.log('→ Página de bienvenida - NO se ejecuta lógica de redirección automática');
+        return; // Salir sin hacer nada
+    }
+
     // Páginas protegidas (requieren login)
     const paginasProtegidas = [
         'dashboard.html',
@@ -372,12 +381,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Si estamos en una página protegida, verificar sesión
     if (paginasProtegidas.includes(pagina)) {
-        protegerPagina();
+        console.log('→ Página protegida - Verificando sesión...');
+        protegerPagina('welcome.html'); // Cambio: redirige a welcome en lugar de login
     }
 
-    // Páginas de autenticación (si ya hay sesión, redirigir)
-    const paginasAuth = ['login.html', 'registro.html'];
+    // Páginas de autenticación (si ya hay sesión, redirigir al dashboard)
+    const paginasAuth = ['login.html', 'registro.html', 'register.html'];
     if (paginasAuth.includes(pagina)) {
+        console.log('→ Página de autenticación - Verificando si ya hay sesión...');
         verificarSesionExistente();
     }
 });
