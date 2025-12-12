@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="sparky_logo.png">
     <title>Jugando - Sparky Trivia</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,9 +13,23 @@
     <style>
         body {
             overflow-x: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
         .game-container {
+            position: relative;
+            z-index: 1;
             min-height: 100vh;
             padding: 20px;
             display: flex;
@@ -30,16 +45,24 @@
             bottom: 0;
             background: rgba(0, 0, 0, 0.9);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 9999;
         }
 
         .countdown-numero {
-            font-size: 15rem;
+            font-size: 12rem;
             font-weight: 900;
             color: white;
             animation: countdownPulse 1s ease;
+            text-shadow: 0 0 50px rgba(255,255,255,0.5);
+        }
+
+        .countdown-texto {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 20px;
         }
 
         @keyframes countdownPulse {
@@ -57,14 +80,14 @@
         .pregunta-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
-            border-radius: var(--radius-lg, 15px);
+            border-radius: 15px;
             padding: 30px;
             margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .timer-bar {
-            height: 8px;
+            height: 10px;
             background: #e9ecef;
             border-radius: 10px;
             overflow: hidden;
@@ -77,17 +100,46 @@
             border-radius: 10px;
         }
 
+        .timer-progress.paused {
+            transition: none;
+        }
+
         .pregunta-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .pregunta-numero {
             font-size: 1rem;
             font-weight: 600;
             color: #5e72e4;
+        }
+
+        .pregunta-timer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #32325d;
+        }
+
+        .pregunta-timer.warning {
+            color: #f5365c;
+            animation: pulse 0.5s infinite;
+        }
+
+        .pregunta-timer.paused {
+            color: #2dce89;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .pregunta-puntos {
@@ -99,23 +151,23 @@
         }
 
         .pregunta-contenido {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: #32325d;
             margin-bottom: 30px;
             line-height: 1.4;
-            min-height: 80px;
+            min-height: 60px;
         }
 
         .pregunta-imagen {
-            max-height: 300px;
-            margin-bottom: 30px;
+            max-height: 250px;
+            margin-bottom: 25px;
             text-align: center;
         }
 
         .pregunta-imagen img {
             max-width: 100%;
-            max-height: 300px;
+            max-height: 250px;
             border-radius: 10px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
@@ -123,33 +175,32 @@
         /* OPCIONES DE RESPUESTA */
         .opciones-container {
             display: grid;
-            gap: 15px;
-            min-height: 200px;
+            gap: 12px;
         }
 
         .opcion-btn {
             background: white;
             border: 3px solid #e9ecef;
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 18px 20px;
             text-align: left;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 15px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
 
         .opcion-btn:hover:not(:disabled) {
             border-color: #5e72e4;
-            transform: translateX(10px);
+            transform: translateX(8px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .opcion-letra {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: linear-gradient(135deg, #5e72e4, #764ba2);
             color: white;
@@ -157,7 +208,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             flex-shrink: 0;
         }
 
@@ -171,9 +222,19 @@
             background: rgba(94, 114, 228, 0.1);
         }
 
-        .opcion-btn.correcta {
+        .opcion-btn.enviando {
+            border-color: #ffd600;
+            background: rgba(255, 214, 0, 0.1);
+        }
+
+        .opcion-btn.confirmada {
             border-color: #2dce89;
             background: rgba(45, 206, 137, 0.1);
+        }
+
+        .opcion-btn.correcta {
+            border-color: #2dce89;
+            background: rgba(45, 206, 137, 0.15);
             animation: correctaPulse 0.5s ease;
         }
 
@@ -193,11 +254,55 @@
 
         .opcion-btn:disabled {
             cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        @keyframes correctaPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ESTADO DE RESPUESTA */
+        .estado-respuesta {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .estado-respuesta.enviando {
+            display: block;
+            background: rgba(255, 214, 0, 0.2);
+            color: #856404;
+        }
+
+        .estado-respuesta.confirmada {
+            display: block;
+            background: rgba(45, 206, 137, 0.2);
+            color: #155724;
+        }
+
+        /* EXPLICACION */
+        .explicacion-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-left: 4px solid #ffd600;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
         }
 
         /* SIDEBAR - RANKING EN VIVO */
         .ranking-sidebar {
-            width: 350px;
+            width: 320px;
             position: sticky;
             top: 20px;
             height: fit-content;
@@ -208,7 +313,7 @@
             backdrop-filter: blur(15px);
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
         .ranking-header {
@@ -224,22 +329,21 @@
             margin: 0;
             font-weight: 700;
             color: #5e72e4;
+            font-size: 1.1rem;
         }
 
         .ranking-item {
             display: flex;
             align-items: center;
-            gap: 15px;
-            padding: 15px;
+            gap: 12px;
+            padding: 12px;
             background: white;
             border-radius: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 2px solid #e9ecef;
             transition: all 0.5s ease;
-            position: relative;
         }
 
-        /* ANIMACION DE MOVIMIENTO */
         .ranking-item.moving {
             animation: moveUp 0.5s ease;
         }
@@ -265,8 +369,8 @@
         }
 
         .ranking-pos {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             background: linear-gradient(135deg, #5e72e4, #764ba2);
             color: white;
@@ -274,7 +378,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1rem;
             flex-shrink: 0;
         }
 
@@ -292,38 +396,43 @@
 
         .ranking-info {
             flex: 1;
+            min-width: 0;
         }
 
         .ranking-nick {
             font-weight: 700;
             color: #32325d;
-            margin-bottom: 3px;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .ranking-stats {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #8898aa;
         }
 
         .ranking-pts {
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: #5e72e4;
         }
 
         /* ESTADO DE CONEXION */
         .conexion-status {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
+            top: 15px;
+            right: 15px;
+            padding: 8px 16px;
             border-radius: 20px;
             font-weight: 600;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             z-index: 1000;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         .status-online {
@@ -336,20 +445,8 @@
             color: white;
         }
 
-        /* ANIMACIONES */
-        @keyframes correctaPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-
         /* RESPONSIVE */
-        @media (max-width: 1024px) {
+        @media (max-width: 992px) {
             .game-container {
                 flex-direction: column;
             }
@@ -357,84 +454,89 @@
             .ranking-sidebar {
                 width: 100%;
                 position: relative;
+                top: 0;
                 order: -1;
             }
 
-            .pregunta-area {
-                max-width: 100%;
+            .countdown-numero {
+                font-size: 8rem;
             }
         }
 
-        @media (max-width: 768px) {
-            .countdown-numero {
-                font-size: 10rem;
-            }
-
+        @media (max-width: 576px) {
             .pregunta-contenido {
                 font-size: 1.3rem;
             }
 
             .opcion-btn {
-                padding: 15px;
-                font-size: 1rem;
+                padding: 14px;
             }
 
             .opcion-letra {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 <body>
+
 <div id="particles-js"></div>
 
-<!-- Countdown Inicial -->
+<!-- COUNTDOWN INICIAL -->
 <div class="countdown-overlay" id="countdownOverlay">
     <div class="countdown-numero" id="countdownNumero">3</div>
+    <div class="countdown-texto">Preparate...</div>
 </div>
 
-<!-- Estado de Conexion -->
-<div class="conexion-status status-offline" id="conexionStatus">
+<!-- ESTADO DE CONEXION -->
+<div id="conexionStatus" class="conexion-status status-offline">
     <i class="bi bi-wifi-off"></i>
     <span>Conectando...</span>
 </div>
 
+<!-- CONTENEDOR PRINCIPAL -->
 <div class="game-container" id="gameContainer" style="display: none;">
-    <!-- AREA PRINCIPAL - PREGUNTA -->
+    <!-- AREA DE PREGUNTA -->
     <div class="pregunta-area">
-        <!-- Timer Bar -->
+        <!-- Barra de tiempo -->
         <div class="timer-bar">
-            <div class="timer-progress bg-success" id="timerProgress" style="width: 100%;"></div>
+            <div class="timer-progress" id="timerProgress" style="width: 100%; background: linear-gradient(90deg, #2dce89, #11cdef);"></div>
         </div>
 
-        <!-- Card de Pregunta -->
+        <!-- Card de pregunta -->
         <div class="pregunta-card">
             <div class="pregunta-header">
-                <div>
-                    <div class="pregunta-numero" id="numeroPregunta">Cargando...</div>
-                    <div class="mt-2">
-                        <i class="bi bi-clock-fill text-primary me-2"></i>
-                        <span id="timerText" style="font-weight: 700; font-size: 1.2rem;">-</span>
-                    </div>
+                <div class="pregunta-numero" id="numeroPregunta">Pregunta 1 de ?</div>
+                <div class="pregunta-timer" id="timerText">
+                    <i class="bi bi-clock"></i>
+                    <span id="timerSeconds">30</span>s
                 </div>
                 <div class="pregunta-puntos">
-                    <i class="bi bi-star-fill me-2"></i><span id="puntosPreg">-</span> pts
+                    <i class="bi bi-star-fill me-1"></i><span id="puntosPreg">100</span> pts
                 </div>
             </div>
 
-            <div class="pregunta-contenido" id="contenidoPregunta"></div>
+            <div class="pregunta-contenido" id="contenidoPregunta">Esperando pregunta...</div>
 
             <div class="pregunta-imagen d-none" id="imagenPregunta"></div>
 
-            <div class="opciones-container" id="opcionesContainer"></div>
-        </div>
+            <div class="opciones-container" id="opcionesContainer">
+                <!-- Las opciones se cargan dinamicamente -->
+            </div>
 
-        <!-- Explicacion (se muestra despues de responder) -->
-        <div class="pregunta-card d-none" id="explicacionCard">
-            <h5><i class="bi bi-lightbulb-fill text-warning me-2"></i>Explicación</h5>
-            <p id="explicacionTexto"></p>
+            <!-- Estado de respuesta -->
+            <div class="estado-respuesta" id="estadoRespuesta">
+                <i class="bi bi-hourglass-split me-2"></i>
+                <span id="estadoTexto">Enviando respuesta...</span>
+            </div>
+
+            <!-- Explicacion -->
+            <div class="explicacion-card d-none" id="explicacionCard">
+                <h6><i class="bi bi-lightbulb-fill text-warning me-2"></i>Explicacion</h6>
+                <p id="explicacionTexto" class="mb-0"></p>
+            </div>
         </div>
     </div>
 
@@ -442,14 +544,14 @@
     <div class="ranking-sidebar">
         <div class="ranking-card">
             <div class="ranking-header">
-                <i class="bi bi-trophy-fill" style="font-size: 1.5rem; color: #FFD700;"></i>
+                <i class="bi bi-trophy-fill" style="font-size: 1.3rem; color: #FFD700;"></i>
                 <h4>Ranking en Vivo</h4>
             </div>
 
             <div id="rankingLive">
                 <div class="text-center text-muted py-3">
-                    <i class="bi bi-hourglass-split"></i>
-                    <p class="mb-0 mt-2">Esperando inicio...</p>
+                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                    <p class="mb-0 mt-2" style="font-size: 0.9rem;">Esperando inicio...</p>
                 </div>
             </div>
         </div>
@@ -458,64 +560,82 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script src="js/animations.js"></script>
 <script src="js/auth.js"></script>
 
 <script>
-    // Variables globales
+    // =============================================
+    // VARIABLES GLOBALES
+    // =============================================
     let websocket = null;
     let codigoSala = null;
     let usuario = null;
     let participanteId = null;
+
+    // Estado del juego
     let preguntaActual = null;
     let tiempoInicio = null;
     let timerInterval = null;
-    let puedeResponder = false;
-    let opcionSeleccionadaId = null;
-    let yaRespondio = false;
-    let rankingActual = []; // Para controlar el orden del ranking
+    let tiempoRestante = 0;
 
+    // Flags de control
+    let puedeResponder = false;
+    let yaRespondio = false;
+    let respuestaConfirmada = false;
+    let opcionSeleccionadaId = null;
+
+    // Ranking
+    let rankingActual = [];
+    let totalPreguntasTrivia = 0;
+
+    // =============================================
+    // INICIALIZACION
+    // =============================================
     document.addEventListener('DOMContentLoaded', function() {
         protegerPagina('login.html');
         usuario = obtenerUsuario();
 
-        // Obtener parametros
         const params = new URLSearchParams(window.location.search);
         codigoSala = params.get('codigo');
         participanteId = parseInt(params.get('participante')) || null;
 
         if (!codigoSala) {
-            alert('Código de sala no especificado');
+            alert('Codigo de sala no especificado');
             window.location.href = 'dashboard.html';
             return;
         }
+
+        console.log('=== INICIANDO JUEGO ===');
+        console.log('Sala:', codigoSala);
+        console.log('Usuario:', usuario.nickName);
+        console.log('Participante ID:', participanteId);
 
         // Inicializar particles
         if (typeof particlesJS !== 'undefined') {
             particlesJS('particles-js', {
                 particles: {
-                    number: { value: 50 },
+                    number: { value: 40 },
                     color: { value: '#ffffff' },
-                    opacity: { value: 0.3 },
+                    opacity: { value: 0.2 },
                     size: { value: 3 },
                     move: { enable: true, speed: 1 }
                 }
             });
         }
 
-        // Conectar WebSocket PRIMERO
+        // Conectar WebSocket primero
         conectarWebSocket();
 
-        // Mostrar countdown despues de conectar
-        setTimeout(() => {
-            mostrarCountdown();
-        }, 500);
+        // Iniciar countdown (sincronizado con el backend que espera 5 segundos)
+        iniciarCountdown();
     });
 
-    function mostrarCountdown() {
+    // =============================================
+    // COUNTDOWN INICIAL
+    // =============================================
+    function iniciarCountdown() {
         let contador = 3;
         const countdownNumero = document.getElementById('countdownNumero');
+        const countdownTexto = document.querySelector('.countdown-texto');
 
         const interval = setInterval(() => {
             contador--;
@@ -526,23 +646,26 @@
                 setTimeout(() => {
                     countdownNumero.style.animation = 'countdownPulse 1s ease';
                 }, 10);
-            } else {
-                countdownNumero.textContent = 'INICIO';
+            } else if (contador === 0) {
+                countdownNumero.textContent = 'GO!';
                 countdownNumero.style.color = '#2dce89';
+                countdownTexto.textContent = 'Comienza el juego!';
+            } else {
+                // Ocultar overlay y mostrar juego
+                document.getElementById('countdownOverlay').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'flex';
 
-                setTimeout(() => {
-                    document.getElementById('countdownOverlay').style.display = 'none';
-                    document.getElementById('gameContainer').style.display = 'flex';
-
-                    // Inicializar ranking con todos en 0 puntos
-                    inicializarRankingInicial();
-                }, 1000);
+                // Cargar ranking inicial
+                inicializarRankingInicial();
 
                 clearInterval(interval);
             }
         }, 1000);
     }
 
+    // =============================================
+    // WEBSOCKET
+    // =============================================
     function conectarWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const host = window.location.host;
@@ -556,30 +679,23 @@
             console.log('WebSocket conectado');
             actualizarEstadoConexion(true);
 
+            // Notificar al servidor que estamos listos
             enviarMensaje({
                 tipo: 'UNIRSE',
                 usuarioId: usuario.usuarioId,
-                nickname: usuario.nickName
+                nickname: usuario.nickName,
+                participanteId: participanteId
             });
         };
 
         websocket.onmessage = function(event) {
-            const mensaje = JSON.parse(event.data);
-            console.log('Mensaje recibido:', mensaje.tipo);
+            try {
+                const mensaje = JSON.parse(event.data);
+                console.log('Mensaje recibido:', mensaje.tipo);
 
-            switch(mensaje.tipo) {
-                case 'PREGUNTA':
-                    manejarNuevaPregunta(mensaje);
-                    break;
-                case 'RESPUESTA_CORRECTA':
-                    manejarRespuestaCorrecta(mensaje);
-                    break;
-                case 'RANKING':
-                    actualizarRanking(mensaje.ranking);
-                    break;
-                case 'JUEGO_FINALIZADO':
-                    manejarFinJuego(mensaje);
-                    break;
+                manejarMensaje(mensaje);
+            } catch (error) {
+                console.error('Error parseando mensaje:', error);
             }
         };
 
@@ -588,12 +704,272 @@
             actualizarEstadoConexion(false);
         };
 
-        websocket.onclose = function() {
-            console.log('WebSocket cerrado');
+        websocket.onclose = function(event) {
+            console.log('WebSocket cerrado:', event.code);
             actualizarEstadoConexion(false);
+
+            // Reconectar si fue cierre inesperado
+            if (event.code !== 1000) {
+                setTimeout(conectarWebSocket, 3000);
+            }
         };
     }
 
+    function manejarMensaje(mensaje) {
+        switch(mensaje.tipo) {
+            case 'PREGUNTA':
+                manejarNuevaPregunta(mensaje);
+                break;
+            case 'RESPUESTA_CONFIRMADA':
+                manejarConfirmacionRespuesta(mensaje);
+                break;
+            case 'RESPUESTA_CORRECTA':
+                manejarRespuestaCorrecta(mensaje);
+                break;
+            case 'RANKING':
+                actualizarRanking(mensaje.ranking);
+                break;
+            case 'JUEGO_FINALIZADO':
+                manejarFinJuego(mensaje);
+                break;
+            default:
+                console.log('Mensaje no manejado:', mensaje.tipo);
+        }
+    }
+
+    // =============================================
+    // MANEJO DE PREGUNTAS
+    // =============================================
+    function manejarNuevaPregunta(mensaje) {
+        console.log('=== NUEVA PREGUNTA ===');
+        console.log('Numero:', mensaje.numeroPregunta, 'de', mensaje.totalPreguntas);
+
+        // Resetear estado
+        preguntaActual = mensaje.pregunta;
+        puedeResponder = true;
+        yaRespondio = false;
+        respuestaConfirmada = false;
+        opcionSeleccionadaId = null;
+        tiempoInicio = Date.now();
+
+        // Guardar total de preguntas
+        totalPreguntasTrivia = mensaje.totalPreguntas;
+
+        // Ocultar explicacion anterior
+        document.getElementById('explicacionCard').classList.add('d-none');
+        document.getElementById('estadoRespuesta').className = 'estado-respuesta';
+
+        // Actualizar numero de pregunta
+        document.getElementById('numeroPregunta').textContent =
+            `Pregunta ${mensaje.numeroPregunta} de ${mensaje.totalPreguntas}`;
+
+        // Actualizar contenido
+        document.getElementById('contenidoPregunta').textContent = preguntaActual.contenido;
+        document.getElementById('puntosPreg').textContent = preguntaActual.puntos || 100;
+
+        // Imagen
+        const imgContainer = document.getElementById('imagenPregunta');
+        if (preguntaActual.imagen) {
+            imgContainer.innerHTML = `<img src="${preguntaActual.imagen}" alt="Imagen">`;
+            imgContainer.classList.remove('d-none');
+        } else {
+            imgContainer.classList.add('d-none');
+        }
+
+        // Renderizar opciones
+        renderizarOpciones();
+
+        // Iniciar temporizador
+        iniciarTemporizador(preguntaActual.limiteTiempo || 30);
+    }
+
+    function renderizarOpciones() {
+        const container = document.getElementById('opcionesContainer');
+        container.innerHTML = '';
+
+        const letras = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+        preguntaActual.opciones.forEach((opcion, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'opcion-btn';
+            btn.dataset.opcionId = opcion.opcionId;
+            btn.innerHTML = `
+                <div class="opcion-letra">${letras[index]}</div>
+                <div class="opcion-texto">${opcion.textoOpcion}</div>
+            `;
+            btn.onclick = () => seleccionarOpcion(opcion.opcionId, btn);
+            container.appendChild(btn);
+        });
+    }
+
+    // =============================================
+    // TEMPORIZADOR - SE PAUSA AL RESPONDER
+    // =============================================
+    function iniciarTemporizador(segundos) {
+        clearInterval(timerInterval);
+
+        tiempoRestante = segundos;
+        const tiempoTotal = segundos;
+        const timerProgress = document.getElementById('timerProgress');
+        const timerText = document.getElementById('timerText');
+        const timerSeconds = document.getElementById('timerSeconds');
+
+        // Resetear estilos
+        timerProgress.classList.remove('paused');
+        timerText.classList.remove('warning', 'paused');
+        timerProgress.style.width = '100%';
+        timerProgress.style.background = 'linear-gradient(90deg, #2dce89, #11cdef)';
+
+        timerInterval = setInterval(() => {
+            // NO decrementar si ya respondio
+            if (yaRespondio) {
+                return;
+            }
+
+            tiempoRestante--;
+            timerSeconds.textContent = tiempoRestante;
+
+            // Actualizar barra de progreso
+            const porcentaje = (tiempoRestante / tiempoTotal) * 100;
+            timerProgress.style.width = porcentaje + '%';
+
+            // Cambiar color segun tiempo
+            if (tiempoRestante <= 5) {
+                timerProgress.style.background = 'linear-gradient(90deg, #f5365c, #f56036)';
+                timerText.classList.add('warning');
+            } else if (tiempoRestante <= 10) {
+                timerProgress.style.background = 'linear-gradient(90deg, #fb6340, #ffd600)';
+                timerText.classList.remove('warning');
+            }
+
+            // Tiempo agotado
+            if (tiempoRestante <= 0) {
+                clearInterval(timerInterval);
+                puedeResponder = false;
+
+                // Deshabilitar opciones
+                document.querySelectorAll('.opcion-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+            }
+        }, 1000);
+    }
+
+    function pausarTemporizador() {
+        const timerProgress = document.getElementById('timerProgress');
+        const timerText = document.getElementById('timerText');
+
+        timerProgress.classList.add('paused');
+        timerText.classList.remove('warning');
+        timerText.classList.add('paused');
+    }
+
+    // =============================================
+    // SELECCION DE RESPUESTA
+    // =============================================
+    function seleccionarOpcion(opcionId, btnElement) {
+        if (!puedeResponder || yaRespondio) {
+            console.log('No puede responder:', { puedeResponder, yaRespondio });
+            return;
+        }
+
+        // Marcar que ya respondio
+        yaRespondio = true;
+        puedeResponder = false;
+        opcionSeleccionadaId = opcionId;
+
+        // PAUSAR EL TIMER
+        pausarTemporizador();
+
+        // Calcular tiempo tomado
+        const tiempoTomado = Math.floor((Date.now() - tiempoInicio) / 1000);
+
+        console.log('Respuesta seleccionada:', opcionId);
+        console.log('Tiempo tomado:', tiempoTomado, 'segundos');
+
+        // Deshabilitar todas las opciones
+        document.querySelectorAll('.opcion-btn').forEach(btn => {
+            btn.disabled = true;
+        });
+
+        // Marcar opcion seleccionada
+        btnElement.classList.add('seleccionada', 'enviando');
+
+        // Mostrar estado de envio
+        const estadoDiv = document.getElementById('estadoRespuesta');
+        estadoDiv.className = 'estado-respuesta enviando';
+        document.getElementById('estadoTexto').textContent = 'Enviando respuesta...';
+
+        // Enviar respuesta al servidor
+        enviarRespuesta(opcionId, tiempoTomado);
+    }
+
+    function enviarRespuesta(opcionId, tiempoTomado) {
+        enviarMensaje({
+            tipo: 'RESPUESTA',
+            participanteId: participanteId,
+            preguntaId: preguntaActual.preguntaId,
+            opcionId: opcionId,
+            tiempoTomado: tiempoTomado
+        });
+    }
+
+    // =============================================
+    // CONFIRMACION DE RESPUESTA
+    // =============================================
+    function manejarConfirmacionRespuesta(mensaje) {
+        // Verificar que sea para este participante
+        if (mensaje.participanteId !== participanteId) return;
+
+        console.log('Respuesta confirmada por el servidor');
+        respuestaConfirmada = true;
+
+        // Actualizar UI
+        const btnSeleccionado = document.querySelector('.opcion-btn.seleccionada');
+        if (btnSeleccionado) {
+            btnSeleccionado.classList.remove('enviando');
+            btnSeleccionado.classList.add('confirmada');
+        }
+
+        const estadoDiv = document.getElementById('estadoRespuesta');
+        estadoDiv.className = 'estado-respuesta confirmada';
+        document.getElementById('estadoTexto').textContent = 'Respuesta registrada - Esperando resultado...';
+    }
+
+    // =============================================
+    // RESPUESTA CORRECTA
+    // =============================================
+    function manejarRespuestaCorrecta(mensaje) {
+        console.log('Respuesta correcta:', mensaje.opcionCorrectaId);
+
+        clearInterval(timerInterval);
+
+        // Ocultar estado de respuesta
+        document.getElementById('estadoRespuesta').className = 'estado-respuesta';
+
+        // Marcar opciones
+        document.querySelectorAll('.opcion-btn').forEach(btn => {
+            const btnOpcionId = parseInt(btn.dataset.opcionId);
+
+            if (btnOpcionId === mensaje.opcionCorrectaId) {
+                btn.classList.remove('seleccionada', 'enviando', 'confirmada');
+                btn.classList.add('correcta');
+            } else if (btnOpcionId === opcionSeleccionadaId && btnOpcionId !== mensaje.opcionCorrectaId) {
+                btn.classList.remove('seleccionada', 'enviando', 'confirmada');
+                btn.classList.add('incorrecta');
+            }
+        });
+
+        // Mostrar explicacion
+        if (mensaje.explicacion) {
+            document.getElementById('explicacionTexto').textContent = mensaje.explicacion;
+            document.getElementById('explicacionCard').classList.remove('d-none');
+        }
+    }
+
+    // =============================================
+    // RANKING EN TIEMPO REAL
+    // =============================================
     async function inicializarRankingInicial() {
         try {
             const response = await fetch(`/SparkyTrivia/api/salas/detalle?codigo=${codigoSala}`, {
@@ -613,155 +989,9 @@
                 }));
 
                 actualizarRanking(rankingInicial);
-                console.log('Ranking inicial cargado:', rankingInicial);
             }
         } catch (error) {
-            console.error('Error cargando participantes iniciales:', error);
-        }
-    }
-
-    function manejarNuevaPregunta(mensaje) {
-        console.log('Nueva pregunta');
-
-        preguntaActual = mensaje.pregunta;
-        puedeResponder = true;
-        yaRespondio = false;
-        opcionSeleccionadaId = null;
-        tiempoInicio = Date.now();
-
-        // Ocultar explicacion anterior
-        document.getElementById('explicacionCard').classList.add('d-none');
-
-        // Actualizar numero
-        document.getElementById('numeroPregunta').textContent =
-            `Pregunta ${mensaje.numeroPregunta} de ${mensaje.totalPreguntas}`;
-
-        // Actualizar contenido
-        document.getElementById('contenidoPregunta').textContent = preguntaActual.contenido;
-        document.getElementById('puntosPreg').textContent = preguntaActual.puntos;
-
-        // Imagen
-        const imgContainer = document.getElementById('imagenPregunta');
-        if (preguntaActual.imagen) {
-            imgContainer.innerHTML = `<img src="${preguntaActual.imagen}" alt="Imagen">`;
-            imgContainer.classList.remove('d-none');
-        } else {
-            imgContainer.classList.add('d-none');
-        }
-
-        // Opciones
-        const opcionesContainer = document.getElementById('opcionesContainer');
-        opcionesContainer.innerHTML = '';
-
-        preguntaActual.opciones.forEach((opcion, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'opcion-btn';
-            btn.dataset.opcionId = opcion.opcionId;
-            btn.innerHTML = `
-                <div class="opcion-letra">${String.fromCharCode(65 + index)}</div>
-                <div class="opcion-texto">${opcion.textoOpcion}</div>
-            `;
-            btn.onclick = () => seleccionarOpcion(opcion.opcionId, btn);
-            opcionesContainer.appendChild(btn);
-        });
-
-        // Iniciar timer
-        iniciarTemporizador(preguntaActual.limiteTiempo);
-    }
-
-    function iniciarTemporizador(segundos) {
-        let tiempoRestante = segundos;
-        const progressBar = document.getElementById('timerProgress');
-        const timerText = document.getElementById('timerText');
-
-        clearInterval(timerInterval);
-
-        timerInterval = setInterval(() => {
-            tiempoRestante--;
-            const porcentaje = (tiempoRestante / segundos) * 100;
-
-            progressBar.style.width = porcentaje + '%';
-            timerText.textContent = tiempoRestante + 's';
-
-            // Cambiar color
-            if (porcentaje > 50) {
-                progressBar.className = 'timer-progress bg-success';
-            } else if (porcentaje > 20) {
-                progressBar.className = 'timer-progress bg-warning';
-            } else {
-                progressBar.className = 'timer-progress bg-danger';
-            }
-
-            if (tiempoRestante <= 0) {
-                clearInterval(timerInterval);
-                if (!yaRespondio) {
-                    tiempoAgotado();
-                }
-            }
-        }, 1000);
-    }
-
-    function tiempoAgotado() {
-        puedeResponder = false;
-        document.querySelectorAll('.opcion-btn').forEach(btn => btn.disabled = true);
-        console.log('Tiempo agotado - esperando respuesta correcta del servidor');
-    }
-
-    function seleccionarOpcion(opcionId, btnElement) {
-        if (!puedeResponder || yaRespondio) return;
-
-        yaRespondio = true;
-        puedeResponder = false;
-        opcionSeleccionadaId = opcionId;
-
-        // ⭐ DETENER EL TIMER INMEDIATAMENTE
-        clearInterval(timerInterval);
-
-        const tiempoTomado = Math.floor((Date.now() - tiempoInicio) / 1000);
-
-        // Marcar seleccionada
-        document.querySelectorAll('.opcion-btn').forEach(btn => {
-            btn.disabled = true;
-            if (btn.dataset.opcionId == opcionId) {
-                btn.classList.add('seleccionada');
-            }
-        });
-
-        // Enviar respuesta
-        enviarMensaje({
-            tipo: 'RESPUESTA',
-            participanteId: participanteId,
-            preguntaId: preguntaActual.preguntaId,
-            opcionId: opcionId,
-            tiempoTomado: tiempoTomado
-        });
-
-        console.log('Respuesta enviada - Esperando confirmación del servidor');
-    }
-
-    function manejarRespuestaCorrecta(mensaje) {
-        const opcionCorrectaId = mensaje.opcionCorrectaId;
-
-        // Marcar correcta/incorrecta
-        document.querySelectorAll('.opcion-btn').forEach(btn => {
-            const btnOpcionId = parseInt(btn.dataset.opcionId);
-
-            if (btnOpcionId === opcionCorrectaId) {
-                btn.classList.add('correcta');
-
-                // Si acerté, confetti
-                if (btnOpcionId === opcionSeleccionadaId && typeof confetti !== 'undefined') {
-                    confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-                }
-            } else if (btnOpcionId === opcionSeleccionadaId) {
-                btn.classList.add('incorrecta');
-            }
-        });
-
-        // Mostrar explicacion
-        if (mensaje.explicacion) {
-            document.getElementById('explicacionTexto').textContent = mensaje.explicacion;
-            document.getElementById('explicacionCard').classList.remove('d-none');
+            console.error('Error cargando ranking inicial:', error);
         }
     }
 
@@ -778,44 +1008,40 @@
             return;
         }
 
-        // ⭐ ORDENAR POR PUNTAJE DESCENDENTE
+        // Ordenar por puntaje descendente
         const rankingOrdenado = [...ranking].sort((a, b) => b.puntaje - a.puntaje);
 
-        // Detectar cambios de posición para animaciones
+        // Detectar cambios de posicion
         const posicionesAnteriores = new Map();
         rankingActual.forEach((j, idx) => {
             posicionesAnteriores.set(j.nickname, idx);
         });
 
-        // Actualizar ranking actual
         rankingActual = rankingOrdenado;
 
         // Renderizar
-        container.innerHTML = rankingOrdenado.slice(0, 5).map((jugador, index) => {
+        container.innerHTML = rankingOrdenado.map((jugador, index) => {
             let claseTop = '';
             if (index === 0) claseTop = 'top-1';
             else if (index === 1) claseTop = 'top-2';
             else if (index === 2) claseTop = 'top-3';
 
-            // Detectar si cambió de posición
             const posAnterior = posicionesAnteriores.get(jugador.nickname);
             const cambio = posAnterior !== undefined && posAnterior !== index;
 
             return `
-                <div class="ranking-item ${claseTop} ${cambio ? 'moving' : ''}" data-nickname="${jugador.nickname}">
+                <div class="ranking-item ${claseTop} ${cambio ? 'moving' : ''}">
                     <div class="ranking-pos">${index + 1}</div>
                     <div class="ranking-info">
                         <div class="ranking-nick">${jugador.nickname}</div>
-                        <div class="ranking-stats">
-                            ${jugador.correctas}/${jugador.respondidas} correctas
-                        </div>
+                        <div class="ranking-stats">${jugador.correctas || 0}/${jugador.respondidas || 0} correctas</div>
                     </div>
-                    <div class="ranking-pts">${jugador.puntaje}</div>
+                    <div class="ranking-pts">${jugador.puntaje || 0}</div>
                 </div>
             `;
         }).join('');
 
-        // Remover clase de animación después de que termine
+        // Quitar animacion despues
         setTimeout(() => {
             document.querySelectorAll('.ranking-item.moving').forEach(item => {
                 item.classList.remove('moving');
@@ -823,12 +1049,27 @@
         }, 500);
     }
 
+    // =============================================
+    // FIN DEL JUEGO
+    // =============================================
     function manejarFinJuego(mensaje) {
-        console.log('Juego finalizado');
+        console.log('=== JUEGO FINALIZADO ===');
         clearInterval(timerInterval);
 
         // Guardar ranking en localStorage
-        localStorage.setItem('rankingFinal_' + codigoSala, JSON.stringify(mensaje.rankingFinal));
+        if (mensaje.rankingFinal) {
+            localStorage.setItem('rankingFinal_' + codigoSala, JSON.stringify(mensaje.rankingFinal));
+        }
+
+        // Mostrar mensaje
+        document.getElementById('contenidoPregunta').innerHTML = `
+            <div class="text-center">
+                <h2 class="text-success mb-3">Juego Terminado!</h2>
+                <p>Redirigiendo a resultados...</p>
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        `;
+        document.getElementById('opcionesContainer').innerHTML = '';
 
         // Redirigir a resultados
         setTimeout(() => {
@@ -836,9 +1077,14 @@
         }, 3000);
     }
 
+    // =============================================
+    // UTILIDADES
+    // =============================================
     function enviarMensaje(mensaje) {
         if (websocket && websocket.readyState === WebSocket.OPEN) {
             websocket.send(JSON.stringify(mensaje));
+        } else {
+            console.error('WebSocket no conectado');
         }
     }
 
@@ -853,6 +1099,7 @@
         }
     }
 
+    // Limpiar al salir
     window.addEventListener('beforeunload', function() {
         if (websocket) websocket.close();
         clearInterval(timerInterval);

@@ -3,61 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="sparky_logo.png">
     <title>Resultados - Sparky Trivia</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
 
     <style>
-        .resultados-container {
+        body {
             min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .resultados-container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
             padding: 40px 20px;
+        }
+
+        .resultado-titulo {
+            text-align: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .resultado-subtitulo {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
         }
 
         /* PODIO */
         .podio-container {
-            max-width: 900px;
-            margin: 0 auto 50px;
-            padding: 40px;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(15px);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .resultado-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .resultado-titulo {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            animation: bounceIn 0.8s ease;
-        }
-
-        .resultado-subtitulo {
-            font-size: 1.3rem;
-            color: #8898aa;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
 
         .podio {
             display: flex;
-            align-items: flex-end;
             justify-content: center;
+            align-items: flex-end;
             gap: 20px;
-            margin-bottom: 50px;
             min-height: 350px;
         }
 
         .podio-item {
-            flex: 1;
-            max-width: 250px;
             text-align: center;
-            animation: slideUp 0.6s ease;
-            cursor: pointer;
             transition: transform 0.3s ease;
         }
 
@@ -65,147 +79,140 @@
             transform: translateY(-10px);
         }
 
-        .podio-item.segundo { animation-delay: 0.2s; }
-        .podio-item.primero { animation-delay: 0.4s; }
-        .podio-item.tercero { animation-delay: 0.6s; }
-
         .podio-avatar {
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             margin: 0 auto 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: 700;
             color: white;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
 
-        .podio-item.primero .podio-avatar {
-            width: 150px;
-            height: 150px;
-            font-size: 4rem;
+        .primero .podio-avatar {
+            width: 100px;
+            height: 100px;
             background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
         }
 
-        .podio-item.segundo .podio-avatar {
-            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
-        }
-
-        .podio-item.tercero .podio-avatar {
-            background: linear-gradient(135deg, #CD7F32, #B8860B);
-        }
-
-        .corona {
+        .primero .podio-avatar::before {
+            content: '';
             position: absolute;
-            top: -30px;
+            top: -15px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 2.5rem;
-            animation: float 2s ease-in-out infinite;
+            font-size: 1.5rem;
+        }
+
+        .segundo .podio-avatar {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            box-shadow: 0 10px 30px rgba(192, 192, 192, 0.4);
+        }
+
+        .tercero .podio-avatar {
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+            box-shadow: 0 10px 30px rgba(205, 127, 50, 0.4);
         }
 
         .podio-nombre {
-            font-size: 1.3rem;
             font-weight: 700;
-            margin-bottom: 10px;
+            font-size: 1.2rem;
             color: #32325d;
+            margin-bottom: 10px;
         }
 
         .podio-stats {
-            background: white;
-            padding: 15px;
+            background: #f7f8fa;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
         }
 
         .podio-puntaje {
             font-size: 2rem;
-            font-weight: 700;
+            font-weight: 800;
             color: #5e72e4;
-            margin-bottom: 5px;
         }
 
-        .podio-precision {
-            font-size: 0.9rem;
-            color: #8898aa;
-            margin-bottom: 5px;
-        }
-
-        /* ⭐ NUEVO: Mostrar correctas/total */
         .podio-correctas {
-            font-size: 1.1rem;
-            font-weight: 600;
             color: #2dce89;
-            margin-top: 5px;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .podio-base {
-            background: linear-gradient(135deg, rgba(94, 114, 228, 0.1), rgba(118, 75, 162, 0.1));
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 15px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
         }
 
-        .podio-item.primero .podio-base {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.1));
-            height: 180px;
+        .primero .podio-base {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            height: 120px;
+            width: 140px;
         }
 
-        .podio-item.segundo .podio-base {
-            background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(168, 168, 168, 0.1));
-            height: 140px;
+        .segundo .podio-base {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            height: 90px;
+            width: 120px;
         }
 
-        .podio-item.tercero .podio-base {
-            background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(184, 134, 11, 0.1));
-            height: 100px;
+        .tercero .podio-base {
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+            height: 60px;
+            width: 120px;
         }
 
         /* RANKING COMPLETO */
         .ranking-completo {
-            max-width: 900px;
-            margin: 0 auto 50px;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(15px);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
 
         .ranking-completo h3 {
-            margin-bottom: 25px;
+            color: #5e72e4;
+            margin-bottom: 20px;
             font-weight: 700;
         }
 
         .ranking-tabla-item {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 20px;
+            gap: 15px;
+            padding: 15px 20px;
             background: white;
-            border-radius: 10px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
             border: 2px solid #e9ecef;
             transition: all 0.3s ease;
         }
 
         .ranking-tabla-item:hover {
             border-color: #5e72e4;
-            transform: translateX(10px);
+            transform: translateX(5px);
         }
 
         .ranking-tabla-item.yo {
             border-color: #5e72e4;
-            background: rgba(94, 114, 228, 0.05);
+            background: linear-gradient(135deg, rgba(94, 114, 228, 0.1), rgba(94, 114, 228, 0.05));
         }
 
         .ranking-tabla-pos {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: linear-gradient(135deg, #5e72e4, #764ba2);
             color: white;
@@ -213,7 +220,6 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.3rem;
             flex-shrink: 0;
         }
 
@@ -223,60 +229,52 @@
 
         .ranking-tabla-nombre {
             font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 5px;
+            color: #32325d;
+            margin-bottom: 3px;
         }
 
         .ranking-tabla-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #8898aa;
         }
 
         .ranking-tabla-pts {
-            font-weight: 700;
-            font-size: 1.5rem;
+            font-weight: 800;
+            font-size: 1.3rem;
             color: #5e72e4;
         }
 
         /* MIS RESPUESTAS */
         .mis-respuestas {
-            max-width: 900px;
-            margin: 0 auto 50px;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.95);
             backdrop-filter: blur(15px);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
         }
 
         .mis-respuestas h3 {
-            margin-bottom: 25px;
+            color: #5e72e4;
+            margin-bottom: 20px;
             font-weight: 700;
         }
 
         .respuesta-item {
             background: white;
-            border-radius: 10px;
+            border-radius: 12px;
             padding: 20px;
-            margin-bottom: 20px;
-            border: 2px solid #e9ecef;
+            margin-bottom: 15px;
+            border-left: 4px solid #e9ecef;
             transition: all 0.3s ease;
         }
 
-        .respuesta-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
         .respuesta-item.correcta {
-            border-color: #2dce89;
-            background: rgba(45, 206, 137, 0.05);
+            border-left-color: #2dce89;
         }
 
         .respuesta-item.incorrecta {
-            border-color: #f5365c;
-            background: rgba(245, 54, 92, 0.05);
+            border-left-color: #f5365c;
         }
 
         .respuesta-header {
@@ -287,13 +285,14 @@
         }
 
         .respuesta-icono {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
             flex-shrink: 0;
         }
 
@@ -310,12 +309,12 @@
         .respuesta-pregunta {
             flex: 1;
             font-weight: 600;
-            font-size: 1.1rem;
+            color: #32325d;
         }
 
         .respuesta-puntos {
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
         }
 
         .respuesta-item.correcta .respuesta-puntos {
@@ -327,57 +326,70 @@
         }
 
         .respuesta-detalles {
-            padding-left: 65px;
+            padding-left: 55px;
         }
 
         .respuesta-label {
             font-size: 0.85rem;
             color: #8898aa;
             margin-bottom: 5px;
-            font-weight: 600;
         }
 
         .respuesta-texto {
             padding: 10px 15px;
             border-radius: 8px;
             margin-bottom: 10px;
-            font-weight: 500;
         }
 
         .respuesta-tuya {
-            background: rgba(94, 114, 228, 0.1);
-            border-left: 4px solid #5e72e4;
+            background: #f7f8fa;
+            border: 1px solid #e9ecef;
         }
 
         .respuesta-correcta-texto {
             background: rgba(45, 206, 137, 0.1);
-            border-left: 4px solid #2dce89;
+            border: 1px solid rgba(45, 206, 137, 0.3);
+            color: #2dce89;
         }
 
-        /* BOTONES */
+        /* BOTONES DE ACCION */
         .botones-accion {
-            max-width: 900px;
-            margin: 30px auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: flex;
             gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
-        /* ANIMACIONES */
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
+        .btn-azul {
+            background: linear-gradient(135deg, #5e72e4, #764ba2);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-azul:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(94, 114, 228, 0.4);
+            color: white;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translate(-50%, 0px); }
-            50% { transform: translate(-50%, -10px); }
+        .btn-verde {
+            background: linear-gradient(135deg, #2dce89, #11cdef);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-verde:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(45, 206, 137, 0.4);
+            color: white;
         }
 
         /* RESPONSIVE */
@@ -385,16 +397,14 @@
             .podio {
                 flex-direction: column;
                 align-items: center;
-                gap: 30px;
             }
 
             .podio-item {
-                max-width: 100%;
+                order: 0;
             }
 
-            .podio-base {
-                height: auto !important;
-                min-height: 100px;
+            .primero {
+                order: -1;
             }
 
             .resultado-titulo {
@@ -404,61 +414,56 @@
     </style>
 </head>
 <body>
+
 <div id="particles-js"></div>
 
 <div class="resultados-container">
-    <!-- HEADER -->
-    <div class="resultado-header">
-        <div class="resultado-titulo" id="resultadoTitulo">🏆 ¡Resultados!</div>
-        <div class="resultado-subtitulo">Así quedó el ranking final</div>
-    </div>
+    <!-- TITULO -->
+    <h1 class="resultado-titulo" id="resultadoTitulo">Resultados</h1>
+    <p class="resultado-subtitulo">Asi quedo el ranking final</p>
 
-    <!-- PODIO TOP 3 -->
+    <!-- PODIO -->
     <div class="podio-container">
-        <div class="podio" id="podio">
+        <div class="podio">
             <!-- Segundo Lugar -->
             <div class="podio-item segundo" style="display: none;" id="segundo">
                 <div class="podio-avatar">
-                    <span id="segundo-inicial">A</span>
+                    <span id="segundo-inicial">B</span>
                 </div>
                 <div class="podio-nombre" id="segundo-nombre">Jugador 2</div>
                 <div class="podio-stats">
                     <div class="podio-puntaje" id="segundo-puntaje">850</div>
                     <div class="podio-correctas" id="segundo-correctas">8/10 correctas</div>
-                    <div class="podio-precision" id="segundo-precision">85% precisión</div>
                 </div>
                 <div class="podio-base">
-                    <div style="font-size: 3rem; font-weight: 700; color: #C0C0C0;">2</div>
+                    <div style="font-size: 3rem; font-weight: 700; color: #666;">2</div>
                 </div>
             </div>
 
             <!-- Primer Lugar -->
             <div class="podio-item primero" style="display: none;" id="primero">
                 <div class="podio-avatar">
-                    <div class="corona">👑</div>
                     <span id="primero-inicial">A</span>
                 </div>
-                <div class="podio-nombre" id="primero-nombre">Campeón</div>
+                <div class="podio-nombre" id="primero-nombre">Jugador 1</div>
                 <div class="podio-stats">
                     <div class="podio-puntaje" id="primero-puntaje">1000</div>
                     <div class="podio-correctas" id="primero-correctas">10/10 correctas</div>
-                    <div class="podio-precision" id="primero-precision">100% precisión</div>
                 </div>
                 <div class="podio-base">
-                    <div style="font-size: 4rem; font-weight: 700; color: #FFD700;">1</div>
+                    <div style="font-size: 3rem; font-weight: 700; color: #B8860B;">1</div>
                 </div>
             </div>
 
             <!-- Tercer Lugar -->
             <div class="podio-item tercero" style="display: none;" id="tercero">
                 <div class="podio-avatar">
-                    <span id="tercero-inicial">A</span>
+                    <span id="tercero-inicial">C</span>
                 </div>
                 <div class="podio-nombre" id="tercero-nombre">Jugador 3</div>
                 <div class="podio-stats">
                     <div class="podio-puntaje" id="tercero-puntaje">720</div>
                     <div class="podio-correctas" id="tercero-correctas">7/10 correctas</div>
-                    <div class="podio-precision" id="tercero-precision">72% precisión</div>
                 </div>
                 <div class="podio-base">
                     <div style="font-size: 3rem; font-weight: 700; color: #CD7F32;">3</div>
@@ -476,10 +481,17 @@
     <!-- MIS RESPUESTAS -->
     <div class="mis-respuestas">
         <h3><i class="bi bi-clipboard-check me-2"></i>Mis Respuestas</h3>
-        <div id="misRespuestas"></div>
+        <div id="misRespuestas">
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 text-muted">Cargando tus respuestas...</p>
+            </div>
+        </div>
     </div>
 
-    <!-- BOTONES DE ACCIÓN -->
+    <!-- BOTONES DE ACCION -->
     <div class="botones-accion">
         <button class="btn btn-azul btn-ripple" onclick="window.location.href='dashboard.html'">
             <i class="bi bi-house-fill me-2"></i>Volver al Dashboard
@@ -511,7 +523,7 @@
         codigoSala = params.get('codigo');
 
         if (!codigoSala) {
-            alert('Código de sala no especificado');
+            alert('Codigo de sala no especificado');
             window.location.href = 'dashboard.html';
             return;
         }
@@ -535,7 +547,7 @@
 
     async function cargarResultados() {
         try {
-            console.log('📊 Cargando resultados para sala:', codigoSala);
+            console.log('Cargando resultados para sala:', codigoSala);
 
             const response = await fetch(`/SparkyTrivia/api/salas/resultados?codigo=${codigoSala}`, {
                 method: 'GET',
@@ -549,21 +561,21 @@
                 const rankingGuardado = localStorage.getItem('rankingFinal_' + codigoSala);
                 if (rankingGuardado) {
                     rankingFinal = JSON.parse(rankingGuardado);
-                    console.log('✅ Ranking cargado desde localStorage');
+                    console.log('Ranking cargado desde localStorage');
                 } else {
                     throw new Error('No se encontraron resultados');
                 }
             } else {
                 rankingFinal = data.ranking;
-                console.log('✅ Ranking cargado desde servidor');
+                console.log('Ranking cargado desde servidor');
             }
 
-            // Encontrar mi posición y calcular total de preguntas
+            // Encontrar mi posicion y calcular total de preguntas
             const miResultado = rankingFinal.find(r => r.nickname === usuario.nickName);
             if (miResultado) {
                 miPosicion = miResultado.rangoFinal;
-                totalPreguntas = miResultado.respondidas; // Total de preguntas respondidas
-                console.log('🏆 Mi posición:', miPosicion, '| Total preguntas:', totalPreguntas);
+                totalPreguntas = miResultado.respondidas;
+                console.log('Mi posicion:', miPosicion, '| Total preguntas:', totalPreguntas);
             }
 
             // Mostrar resultados
@@ -578,32 +590,27 @@
                     spread: 100,
                     origin: { y: 0.4 }
                 });
-                document.getElementById('resultadoTitulo').textContent = '🏆 ¡GANASTE!';
+                document.getElementById('resultadoTitulo').textContent = 'GANASTE!';
             } else if (miPosicion <= 3 && miPosicion > 0) {
-                document.getElementById('resultadoTitulo').textContent = '🎉 ¡Top 3!';
-            } else if (miPosicion > 3) {
-                document.getElementById('resultadoTitulo').textContent = '📊 Resultados';
+                document.getElementById('resultadoTitulo').textContent = 'Top 3!';
             }
 
         } catch (error) {
-            console.error('❌ Error cargando resultados:', error);
-            document.getElementById('resultadoTitulo').textContent = '❌ Error al cargar resultados';
-
-            document.querySelector('.podio-container').innerHTML = `
-                <div class="alert alert-danger">
+            console.error('Error cargando resultados:', error);
+            document.getElementById('rankingCompleto').innerHTML = `
+                <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle me-2"></i>
-                    Error: ${error.message}.
-                    <br><br>
-                    <a href="dashboard.html" class="btn btn-primary">
-                        <i class="bi bi-house-fill me-2"></i>Volver al Dashboard
-                    </a>
+                    No se pudieron cargar los resultados: ${error.message}
                 </div>
             `;
         }
     }
 
+    /**
+     * CORREGIDO: Muestra el podio SIN el texto de precision
+     */
     function mostrarPodio() {
-        console.log('🥇 Mostrando podio con', rankingFinal.length, 'jugadores');
+        console.log('Mostrando podio');
 
         if (rankingFinal.length >= 1) {
             const primero = rankingFinal[0];
@@ -613,14 +620,8 @@
             document.getElementById('primero-inicial').textContent = primero.nickname.charAt(0).toUpperCase();
             document.getElementById('primero-nombre').textContent = primero.nickname;
             document.getElementById('primero-puntaje').textContent = primero.puntajeFinal || 0;
-
-            // ⭐ MOSTRAR CORRECTAS/TOTAL
             document.getElementById('primero-correctas').textContent =
                 `${primero.correctas || 0}/${totalPreg} correctas`;
-
-            const precision1 = primero.precision ||
-                (primero.respondidas > 0 ? (primero.correctas / primero.respondidas * 100) : 0);
-            document.getElementById('primero-precision').textContent = precision1.toFixed(1) + '% precisión';
         }
 
         if (rankingFinal.length >= 2) {
@@ -631,14 +632,8 @@
             document.getElementById('segundo-inicial').textContent = segundo.nickname.charAt(0).toUpperCase();
             document.getElementById('segundo-nombre').textContent = segundo.nickname;
             document.getElementById('segundo-puntaje').textContent = segundo.puntajeFinal || 0;
-
-            // ⭐ MOSTRAR CORRECTAS/TOTAL
             document.getElementById('segundo-correctas').textContent =
                 `${segundo.correctas || 0}/${totalPreg} correctas`;
-
-            const precision2 = segundo.precision ||
-                (segundo.respondidas > 0 ? (segundo.correctas / segundo.respondidas * 100) : 0);
-            document.getElementById('segundo-precision').textContent = precision2.toFixed(1) + '% precisión';
         }
 
         if (rankingFinal.length >= 3) {
@@ -649,19 +644,16 @@
             document.getElementById('tercero-inicial').textContent = tercero.nickname.charAt(0).toUpperCase();
             document.getElementById('tercero-nombre').textContent = tercero.nickname;
             document.getElementById('tercero-puntaje').textContent = tercero.puntajeFinal || 0;
-
-            // ⭐ MOSTRAR CORRECTAS/TOTAL
             document.getElementById('tercero-correctas').textContent =
                 `${tercero.correctas || 0}/${totalPreg} correctas`;
-
-            const precision3 = tercero.precision ||
-                (tercero.respondidas > 0 ? (tercero.correctas / tercero.respondidas * 100) : 0);
-            document.getElementById('tercero-precision').textContent = precision3.toFixed(1) + '% precisión';
         }
     }
 
+    /**
+     * CORREGIDO: Muestra el ranking completo SIN el texto de precision
+     */
     function mostrarRankingCompleto() {
-        console.log('📋 Mostrando ranking completo');
+        console.log('Mostrando ranking completo');
         const container = document.getElementById('rankingCompleto');
 
         if (!rankingFinal || rankingFinal.length === 0) {
@@ -671,8 +663,6 @@
 
         container.innerHTML = rankingFinal.map(jugador => {
             const esYo = jugador.nickname === usuario.nickName;
-            const precision = jugador.precision ||
-                (jugador.respondidas > 0 ? (jugador.correctas / jugador.respondidas * 100) : 0);
 
             return `
                 <div class="ranking-tabla-item ${esYo ? 'yo' : ''}">
@@ -680,11 +670,10 @@
                     <div class="ranking-tabla-info">
                         <div class="ranking-tabla-nombre">
                             ${jugador.nickname}
-                            ${esYo ? '<span class="badge bg-primary ms-2">TÚ</span>' : ''}
+                            ${esYo ? '<span class="badge bg-primary ms-2">TU</span>' : ''}
                         </div>
                         <div class="ranking-tabla-stats">
                             <span><i class="bi bi-check-circle-fill text-success me-1"></i>${jugador.correctas || 0}/${jugador.respondidas || 0} correctas</span>
-                            <span><i class="bi bi-percent me-1"></i>${precision.toFixed(1)}% precisión</span>
                         </div>
                     </div>
                     <div class="ranking-tabla-pts">${jugador.puntajeFinal || 0}</div>
@@ -693,8 +682,11 @@
         }).join('');
     }
 
+    /**
+     * CORREGIDO: Carga y muestra las respuestas del jugador
+     */
     async function cargarMisRespuestas() {
-        console.log('📝 Cargando mis respuestas...');
+        console.log('Cargando mis respuestas...');
 
         try {
             const response = await fetch(`/SparkyTrivia/api/salas/mis-respuestas?codigo=${codigoSala}`, {
@@ -707,7 +699,7 @@
 
             if (data.success && data.respuestas && data.respuestas.length > 0) {
                 mostrarMisRespuestas(data.respuestas);
-                console.log('✅ Respuestas cargadas:', data.respuestas.length);
+                console.log('Respuestas cargadas:', data.respuestas.length);
             } else {
                 document.getElementById('misRespuestas').innerHTML = `
                     <div class="alert alert-info">
@@ -719,7 +711,7 @@
             }
 
         } catch (error) {
-            console.error('❌ Error cargando respuestas:', error);
+            console.error('Error cargando respuestas:', error);
             document.getElementById('misRespuestas').innerHTML = `
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle me-2"></i>
@@ -729,6 +721,9 @@
         }
     }
 
+    /**
+     * CORREGIDO: Muestra las respuestas del jugador con pregunta, respuesta seleccionada y respuesta correcta
+     */
     function mostrarMisRespuestas(respuestas) {
         const container = document.getElementById('misRespuestas');
 
@@ -749,7 +744,7 @@
                 <div class="respuesta-item ${esCorrecta ? 'correcta' : 'incorrecta'}">
                     <div class="respuesta-header">
                         <div class="respuesta-icono">
-                            ${esCorrecta ? '✓' : '✗'}
+                            ${esCorrecta ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>'}
                         </div>
                         <div class="respuesta-pregunta">
                             Pregunta ${index + 1}: ${respuesta.pregunta}
@@ -784,14 +779,14 @@
         const total = miResultado ? miResultado.respondidas : 0;
         const puntaje = miResultado ? miResultado.puntajeFinal : 0;
 
-        const texto = `🏆 ¡Terminé la trivia en Sparky Trivia!
+        const texto = `Termine la trivia en Sparky Trivia!
 
-📊 Posición: #${miPosicion}
-✅ Correctas: ${correctas}/${total}
-⭐ Puntaje: ${puntaje} pts
-🎮 Código de sala: ${codigoSala}
+Posicion: #${miPosicion}
+Correctas: ${correctas}/${total}
+Puntaje: ${puntaje} pts
+Codigo de sala: ${codigoSala}
 
-¡Únete y compite conmigo!`;
+Unite y competi conmigo!`;
 
         if (navigator.share) {
             navigator.share({
@@ -800,7 +795,7 @@
             }).catch(console.error);
         } else {
             navigator.clipboard.writeText(texto).then(() => {
-                alert('¡Resultados copiados al portapapeles!');
+                alert('Resultados copiados al portapapeles!');
             }).catch(err => {
                 console.error('Error al copiar:', err);
                 alert('No se pudo copiar al portapapeles');
